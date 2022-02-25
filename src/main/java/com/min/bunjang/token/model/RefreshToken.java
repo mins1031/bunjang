@@ -19,7 +19,7 @@ public class RefreshToken {
 
     private LocalDateTime createDate;
 
-    public RefreshToken(String email, String refreshToken, LocalDateTime createDate) {
+    private RefreshToken(String email, String refreshToken, LocalDateTime createDate) {
         this.email = email;
         this.refreshToken = refreshToken;
         this.createDate = createDate;

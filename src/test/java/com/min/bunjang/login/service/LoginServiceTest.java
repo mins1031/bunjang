@@ -1,7 +1,7 @@
 package com.min.bunjang.login.service;
 
 import com.min.bunjang.login.dto.LoginRequest;
-import com.min.bunjang.login.dto.LoginResponse;
+import com.min.bunjang.token.dto.TokenValuesDto;
 import com.min.bunjang.member.dto.MemberDirectCreateDto;
 import com.min.bunjang.member.exception.NotExistMemberException;
 import com.min.bunjang.member.model.Member;
@@ -38,7 +38,7 @@ class LoginServiceTest {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         String email = "email";
         String password = "password";
-        Member member = Member.createMember(new MemberDirectCreateDto(null,
+        Member member = Member.createMember(MemberDirectCreateDto.of(
                 email,
                 bCryptPasswordEncoder.encode(password),
                 "min",
@@ -50,16 +50,16 @@ class LoginServiceTest {
 
         LoginRequest loginRequest = new LoginRequest(email, password);
         //when
-        LoginResponse loginResponse = loginService.login(loginRequest);
+        TokenValuesDto tokenValuesDto = loginService.login(loginRequest);
         //then
-        Assertions.assertThat(loginResponse.getAccessToken()).isNotNull();
-        Assertions.assertThat(loginResponse.getRefreshToken()).isNotNull();
+        Assertions.assertThat(tokenValuesDto.getAccessToken()).isNotNull();
+        Assertions.assertThat(tokenValuesDto.getRefreshToken()).isNotNull();
 
         RefreshToken refreshToken = refreshTokenRepository.findById(email).orElseThrow(NotExistMemberException::new);
-        Assertions.assertThat(loginResponse.getRefreshToken()).isEqualTo(refreshToken.getRefreshToken());
+        Assertions.assertThat(tokenValuesDto.getRefreshToken()).isEqualTo(refreshToken.getRefreshToken());
     }
 
-    @DisplayName("없는 이메일로 로그인 시도")
+    @DisplayName("[예외] 없는 이메일로 로그인 시도시 NotExistMemberException 예외가 발생한다.")
     @Test
     void login_NotExistMember() {
         //given

@@ -1,8 +1,7 @@
 package com.min.bunjang.login.service;
 
 import com.min.bunjang.login.dto.LoginRequest;
-import com.min.bunjang.login.dto.LoginResponse;
-import com.min.bunjang.login.exception.NotMacheEmailAndPasswordException;
+import com.min.bunjang.token.dto.TokenValuesDto;
 import com.min.bunjang.login.jwt.TokenProvider;
 import com.min.bunjang.member.exception.NotExistMemberException;
 import com.min.bunjang.member.model.Member;
@@ -23,7 +22,7 @@ public class LoginService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public LoginResponse login(LoginRequest loginRequest) throws RuntimeException{
+    public TokenValuesDto login(LoginRequest loginRequest) throws RuntimeException{
         Member member = memberRepository.findByEmail(loginRequest.getEmail()).orElseThrow(NotExistMemberException::new);
         member.verifyMatchPassword(loginRequest.getPassword(), bCryptPasswordEncoder);
 
@@ -31,7 +30,7 @@ public class LoginService {
         String refreshToken = tokenProvider.createRefreshToken(member.getEmail());
         refreshTokenRepository.save(RefreshToken.of(member.getEmail(), refreshToken));
 
-        return LoginResponse.of(accessToken, refreshToken);
+        return TokenValuesDto.of(accessToken, refreshToken);
     }
 
 }
