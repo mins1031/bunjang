@@ -38,9 +38,6 @@ public class Store extends BasicEntity {
             joinColumns = @JoinColumn(name = "store_id"))
     private Set<Long> visitors = new HashSet<>();
 
-//    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "owner", orphanRemoval = true)
-//    private Set<Visitor> visitors = new HashSet<>();
-
     private Store(String storeName, String introduceContent, Member member) {
         this.storeName = storeName;
         this.introduceContent = introduceContent;
@@ -53,6 +50,10 @@ public class Store extends BasicEntity {
 
     public void updateIntroduceContent(String introduceContent) {
         this.introduceContent = introduceContent;
+    }
+
+    public void updateStoreName(String storeName) {
+        this.storeName = storeName;
     }
 
     public Period calculateOpenTime() {
