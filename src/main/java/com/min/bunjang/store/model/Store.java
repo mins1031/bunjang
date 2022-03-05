@@ -2,6 +2,7 @@ package com.min.bunjang.store.model;
 
 import com.min.bunjang.common.model.BasicEntity;
 import com.min.bunjang.member.model.Member;
+import com.min.bunjang.wishproduct.model.WishProduct;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,11 +15,9 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.OrderColumn;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -39,6 +38,9 @@ public class Store extends BasicEntity {
     @CollectionTable(name = "visitor",
             joinColumns = @JoinColumn(name = "store_id"))
     private Set<Long> visitors = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "store", orphanRemoval = true)
+    private Set<WishProduct> wishProducts = new HashSet<>();
 
     public Store(String storeName, String introduceContent, String storeThumbnail, Member member) {
         this.storeName = storeName;

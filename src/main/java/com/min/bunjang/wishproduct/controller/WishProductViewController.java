@@ -1,8 +1,7 @@
-package com.min.bunjang.storereview.controller;
+package com.min.bunjang.wishproduct.controller;
 
 import com.min.bunjang.common.dto.RestResponse;
-import com.min.bunjang.storereview.dto.StoreReviewListResponses;
-import com.min.bunjang.storereview.service.StoreReviewViewService;
+import com.min.bunjang.wishproduct.service.WishProductViewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,16 +15,15 @@ import javax.validation.constraints.NotNull;
 
 @RestController
 @RequiredArgsConstructor
-public class StoreReviewViewController {
-    private final StoreReviewViewService storeReviewViewService;
+public class WishProductViewController {
+    private final WishProductViewService wishProductViewService;
 
-    @GetMapping(StoreReviewViewControllerPath.REVIEW_FIND_BY_STORE)
-    public RestResponse<StoreReviewListResponses> findStoreReviewsByStore(
+    @GetMapping(WishProductViewControllerPath.WISH_PRODUCT_FIND_BY_STORE)
+    public RestResponse<Void> findWishProductsByStore(
             @NotNull @PathVariable Long storeNum,
             @PageableDefault(sort = "num", direction = Sort.Direction.DESC, size = 10) Pageable pageable
     ) {
-        StoreReviewListResponses reviewsByStore = storeReviewViewService.findStoreReviewsByStore(storeNum, pageable);
-        return RestResponse.of(HttpStatus.OK, reviewsByStore);
+        wishProductViewService.findWishProductsByStore(storeNum, pageable);
+        return RestResponse.of(HttpStatus.OK, null);
     }
-
 }
