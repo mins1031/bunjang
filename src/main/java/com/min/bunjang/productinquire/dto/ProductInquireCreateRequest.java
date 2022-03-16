@@ -12,15 +12,15 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class ProductInquireCreateRequest {
-
     @NotNull
-    private Long storeNum;
-
+    private Long writerNum;
     @NotNull
     private Long productNum;
-
     @NotEmpty
     private String inquireContent;
+    private Long mentionedStoreNumForAnswer;
 
-    private Long inquireWriterNumForAnswer;
+    public boolean isCheckExistenceMentionedStoreNum() {
+        return this.mentionedStoreNumForAnswer != null;
+    }
 }

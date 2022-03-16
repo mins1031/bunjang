@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -14,7 +15,10 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductInquire extends BasicEntity {
     @NotNull
-    private Long storeNum;
+    private Long writerNum;
+
+    @NotBlank
+    private String writerName;
 
     @NotNull
     private Long productNum;
@@ -22,16 +26,22 @@ public class ProductInquire extends BasicEntity {
     @NotEmpty
     private String inquireContent;
 
-    private Long inquireWriterNumForAnswer;
+    private Long mentionedStoreNumForAnswer;
+    private String mentionedStoreNameForAnswer;
 
-    private ProductInquire(Long storeNum, Long productNum, String inquireContent, Long inquireWriterNumForAnswer) {
-        this.storeNum = storeNum;
+    private ProductInquire(Long writerNum, String writerName, Long productNum, String inquireContent) {
+        this.writerNum = writerNum;
+        this.writerName = writerName;
         this.productNum = productNum;
         this.inquireContent = inquireContent;
-        this.inquireWriterNumForAnswer = inquireWriterNumForAnswer;
     }
 
-    public static ProductInquire createProductInquire(Long storeNum, Long productNum, String inquireContent, Long inquireWriterNumForAnswer) {
-        return new ProductInquire(storeNum, productNum, inquireContent, inquireWriterNumForAnswer);
+    public static ProductInquire createProductInquire(Long writerNum, String writerName, Long productNum, String inquireContent) {
+        return new ProductInquire(writerNum, writerName, productNum, inquireContent);
+    }
+
+    public void defineMention(Long mentionedStoreNumForAnswer, String mentionedStoreNameForAnswer) {
+        this.mentionedStoreNumForAnswer = mentionedStoreNumForAnswer;
+        this.mentionedStoreNameForAnswer = mentionedStoreNameForAnswer;
     }
 }
