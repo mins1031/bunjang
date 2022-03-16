@@ -13,13 +13,17 @@ import com.min.bunjang.helpers.MemberAcceptanceHelper;
 import com.min.bunjang.helpers.StoreAcceptanceHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.product.controller.ProductControllerPath;
+import com.min.bunjang.product.controller.ProductViewControllerPath;
 import com.min.bunjang.product.dto.ProductCreateOrUpdateRequest;
 import com.min.bunjang.product.dto.ProductDeleteRequest;
+import com.min.bunjang.product.dto.ProductSimpleResponse;
+import com.min.bunjang.product.dto.ProductSimpleResponses;
 import com.min.bunjang.product.model.DeliveryChargeInPrice;
 import com.min.bunjang.product.model.ExchangeState;
 import com.min.bunjang.product.model.Product;
-import com.min.bunjang.product.model.ProductState;
+import com.min.bunjang.product.model.ProductQualityState;
 import com.min.bunjang.product.model.ProductTag;
+import com.min.bunjang.product.model.ProductTradeState;
 import com.min.bunjang.product.repository.ProductRepository;
 import com.min.bunjang.product.repository.ProductTagRepository;
 import com.min.bunjang.store.model.Store;
@@ -72,7 +76,8 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
                             secondCategory.getNum(),
                             thirdCategory.getNum(),
                             "seoul",
-                            ProductState.NEW_PRODUCT,
+                            ProductTradeState.SOLD_ING,
+                            ProductQualityState.NEW_PRODUCT,
                             ExchangeState.IMPOSSIBILITY,
                             100000,
                             DeliveryChargeInPrice.EXCLUDED,
@@ -88,6 +93,14 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
                     상품_생성_응답_검증(productCreateOrUpdateRequest);
                 }),
 
+                DynamicTest.dynamicTest("상점별 상품목록 조회.", () -> {
+                    //when
+                    ProductSimpleResponses productSimpleResponses = 상점별_상품목록_조회_요청(loginResult, store);
+
+                    //then
+                    상점별_상품목록_조회_응답_검증(productSimpleResponses);
+                }),
+
                 DynamicTest.dynamicTest("상품 수정.", () -> {
                     //given
                     Product product = productRepository.findAll().get(0);
@@ -99,7 +112,8 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
                             secondCategory.getNum(),
                             thirdCategory.getNum(),
                             "new seoul",
-                            ProductState.USED_PRODUCT,
+                            ProductTradeState.SOLD_ING,
+                            ProductQualityState.USED_PRODUCT,
                             ExchangeState.POSSIBILITY,
                             100214,
                             DeliveryChargeInPrice.INCLUDED,
@@ -143,7 +157,7 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(product.getThirdProductCategory()).isNotNull();
         Assertions.assertThat(product.getProductName()).isEqualTo(productCreateOrUpdateRequest.getProductName());
         Assertions.assertThat(product.getExchangeLocation()).isEqualTo(productCreateOrUpdateRequest.getExchangeLocation());
-        Assertions.assertThat(product.getProductState()).isEqualTo(productCreateOrUpdateRequest.getProductState());
+        Assertions.assertThat(product.getProductQualityState()).isEqualTo(productCreateOrUpdateRequest.getProductQualityState());
         Assertions.assertThat(product.getExchangeState()).isEqualTo(productCreateOrUpdateRequest.getExchangeState());
         Assertions.assertThat(product.getDeliveryChargeInPrice()).isEqualTo(productCreateOrUpdateRequest.getDeliveryChargeInPrice());
         Assertions.assertThat(product.getProductAmount()).isEqualTo(productCreateOrUpdateRequest.getProductAmount());
@@ -151,6 +165,18 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(productTags).hasSize(2);
         Assertions.assertThat(productTags.get(0).getTag()).isEqualTo(productCreateOrUpdateRequest.getTags().get(0));
         Assertions.assertThat(productTags.get(1).getTag()).isEqualTo(productCreateOrUpdateRequest.getTags().get(1));
+    }
+
+    private ProductSimpleResponses 상점별_상품목록_조회_요청(TokenValuesDto loginResult, Store store) {
+        String path = ProductViewControllerPath.PRODUCTS_FIND_BY_STORE.replace("{storeNum}", String.valueOf(store.getNum()));
+        return getApi(path, loginResult.getAccessToken(), new TypeReference<RestResponse<ProductSimpleResponses>>() {
+        }).getResult();
+    }
+
+    private void 상점별_상품목록_조회_응답_검증(ProductSimpleResponses productSimpleResponses) {
+        List<ProductSimpleResponse> productSimpleResponseList = productSimpleResponses.getProductSimpleResponses();
+        Assertions.assertThat(productSimpleResponseList).hasSize(1);
+        Assertions.assertThat(productSimpleResponseList.get(0).getProductName()).isEqualTo("productName");
     }
 
     private void 상품_수정_요청(TokenValuesDto loginResult, Product product, ProductCreateOrUpdateRequest productCreateOrUpdateRequest) {
@@ -163,7 +189,7 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(updatedProduct.getNum()).isEqualTo(product.getNum());
         Assertions.assertThat(updatedProduct.getProductName()).isEqualTo(productCreateOrUpdateRequest.getProductName());
         Assertions.assertThat(updatedProduct.getExchangeLocation()).isEqualTo(productCreateOrUpdateRequest.getExchangeLocation());
-        Assertions.assertThat(updatedProduct.getProductState()).isEqualTo(productCreateOrUpdateRequest.getProductState());
+        Assertions.assertThat(updatedProduct.getProductQualityState()).isEqualTo(productCreateOrUpdateRequest.getProductQualityState());
         Assertions.assertThat(updatedProduct.getExchangeState()).isEqualTo(productCreateOrUpdateRequest.getExchangeState());
         Assertions.assertThat(updatedProduct.getDeliveryChargeInPrice()).isEqualTo(productCreateOrUpdateRequest.getDeliveryChargeInPrice());
         Assertions.assertThat(updatedProduct.getProductAmount()).isEqualTo(productCreateOrUpdateRequest.getProductAmount());
