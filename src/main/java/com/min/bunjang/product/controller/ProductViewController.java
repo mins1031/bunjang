@@ -1,6 +1,7 @@
 package com.min.bunjang.product.controller;
 
 import com.min.bunjang.common.dto.RestResponse;
+import com.min.bunjang.product.dto.ProductDetailResponse;
 import com.min.bunjang.product.dto.ProductSimpleResponse;
 import com.min.bunjang.product.dto.ProductSimpleResponses;
 import com.min.bunjang.product.service.ProductViewService;
@@ -23,14 +24,13 @@ import javax.validation.constraints.NotNull;
 public class ProductViewController {
     private final ProductViewService productViewService;
 
-    @PreAuthorize("hasAnyRole('ROLE_MEMBER', 'ROLE_ADMIN')")
     @GetMapping(ProductViewControllerPath.PRODUCT_GET)
-    public RestResponse<Void> getProduct(
-            @PathVariable Long productNum,
+    public RestResponse<ProductDetailResponse> getProduct(
+            @NotNull @PathVariable Long productNum,
             @AuthenticationPrincipal MemberAccount memberAccount
     ) {
-        productViewService.getProduct(memberAccount.getEmail(), productNum);
-        return RestResponse.of(HttpStatus.OK, null);
+        ProductDetailResponse productDetailResponse = productViewService.getProduct(productNum, memberAccount.getEmail());
+        return RestResponse.of(HttpStatus.OK, productDetailResponse);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_MEMBER', 'ROLE_ADMIN')")
@@ -43,6 +43,4 @@ public class ProductViewController {
         ProductSimpleResponses productSimpleResponses = productViewService.findProductsByStore(memberAccount.getEmail(), storeNum, pageable);
         return RestResponse.of(HttpStatus.OK, productSimpleResponses);
     }
-
-
 }

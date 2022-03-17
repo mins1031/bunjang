@@ -3,6 +3,7 @@ package com.min.bunjang.product.model;
 import com.min.bunjang.category.model.FirstProductCategory;
 import com.min.bunjang.category.model.SecondProductCategory;
 import com.min.bunjang.category.model.ThirdProductCategory;
+import com.min.bunjang.common.exception.ImpossibleException;
 import com.min.bunjang.common.model.BasicEntity;
 import com.min.bunjang.product.dto.ProductCreateOrUpdateRequest;
 import com.min.bunjang.productinquire.model.ProductInquire;
@@ -35,7 +36,6 @@ public class Product extends BasicEntity {
     @NotBlank
     private String productName;
 
-    //    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "first_product_category_num")
     private FirstProductCategory firstProductCategory;
@@ -87,7 +87,7 @@ public class Product extends BasicEntity {
     private List<ProductTag> productTags = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "productNum", orphanRemoval = true)
-    private List<ProductInquire> productInquires = new ArrayList<>();
+    private Set<ProductInquire> productInquires = new HashSet<>();
 
     public Product(String productName) {
         this.productName = productName;
@@ -123,6 +123,7 @@ public class Product extends BasicEntity {
         this.productExplanation = productExplanation;
         this.productAmount = productAmount;
         this.store = store;
+        this.hits = 0;
     }
 
     public static Product createProduct(
@@ -185,6 +186,25 @@ public class Product extends BasicEntity {
             return;
         }
         this.hits += 1;
+    }
+
+    public int getWishProductCount() {
+        if (this.wishProducts.isEmpty()) {
+            return 0;
+        }
+        return this.wishProducts.size();
+    }
+
+    public Store checkAndReturnStore() {
+        if (this.store == null) {
+            throw new ImpossibleException("상품이 등록된 상점이 없습니다. 잘못된 요청입니다.");
+        }
+
+        return getStore();
+    }
+
+    private Store getStore() {
+        return this.store;
     }
 
 }
