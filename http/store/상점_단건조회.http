@@ -1,0 +1,23 @@
+GET http://localhost:8080/store/1
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVyaXNlZ2VhQG5hdmVyLmNvbSIsImlhdCI6MTY0Nzg2ODY1MywiZXhwIjoxNjQ3ODcwNDUzfQ.NLB_bq7_3OyQvoqm4VsffhhEUCSsjAM9gIjxgCUJy1U
+
+
+#res
+#{
+#  "statusCode": "OK",
+#  "message": null,
+#  "result": {
+#    "storeNum": 1,
+#    "storeThumbnail": null,
+#    "storeName": "생성 테스트용 상점명 변경 테스트",
+#    "storeScore": 0.0,
+#    "openDate": "P16D",
+#    "hits": 5,
+#    "introduceContent": "생성 테스트용 상점 소개글 수정"
+#  }
+#}
+#
+#Response code: 200; Time: 120ms; Content length: 196 bytes
+
+#req
