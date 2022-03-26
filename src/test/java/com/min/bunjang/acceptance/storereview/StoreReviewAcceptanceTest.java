@@ -38,6 +38,7 @@ public class StoreReviewAcceptanceTest extends AcceptanceTestConfig {
     @Autowired
     private ProductRepository productRepository;
 
+    //! nullP
     @TestFactory
     Stream<DynamicTest> dynamicTestStream() {
         String ownerEmail = "urisegea@naver.com";
@@ -62,6 +63,7 @@ public class StoreReviewAcceptanceTest extends AcceptanceTestConfig {
 
                     StoreReviewCreateRequest storeReviewCreateRequest = new StoreReviewCreateRequest(
                             owner.getNum(),
+                            writer.getNum(),
                             dealScore,
                             product.getNum(),
                             reviewContent

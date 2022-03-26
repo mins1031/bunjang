@@ -1,5 +1,8 @@
 package com.min.bunjang.storereview.dto.response;
 
+import com.min.bunjang.aws.s3.dto.S3FileDto;
+import com.min.bunjang.store.dto.response.StoreThumbnailResponse;
+import com.min.bunjang.store.model.StoreThumbnail;
 import com.min.bunjang.storereview.model.StoreReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class StoreReviewResponse {
     private Long writerNum;
-    private String writerThumbnail;
+    private StoreThumbnailResponse writerThumbnail;
     private String writerName;
     private double dealScore;
     private Long productNum;
@@ -21,7 +24,7 @@ public class StoreReviewResponse {
     private LocalDate postingDate;
 
 
-    public StoreReviewResponse(Long writerNum, String writerThumbnail, String writerName, double dealScore, Long productNum, String productName, String reviewContent, LocalDate postingDate) {
+    public StoreReviewResponse(Long writerNum, StoreThumbnailResponse writerThumbnail, String writerName, double dealScore, Long productNum, String productName, String reviewContent, LocalDate postingDate) {
         this.writerNum = writerNum;
         this.writerThumbnail = writerThumbnail;
         this.writerName = writerName;
@@ -34,8 +37,8 @@ public class StoreReviewResponse {
 
     public static StoreReviewResponse of(StoreReview storeReview) {
         return new StoreReviewResponse(
-                storeReview.getWriterNum(),
-                storeReview.getStoreThumbnail(),
+                storeReview.getWriter().getNum(),
+                StoreThumbnailResponse.of(storeReview.getWriter()),
                 storeReview.getWriterName(),
                 storeReview.getDealScore(),
                 storeReview.getProductNum(),

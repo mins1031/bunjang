@@ -1,13 +1,14 @@
-package com.min.bunjang.store.dto;
+package com.min.bunjang.store.dto.response;
 
+import com.min.bunjang.aws.s3.dto.S3FileDto;
 import com.min.bunjang.store.model.Store;
-import com.min.bunjang.storereview.dto.response.StoreReviewResponse;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class StoreSimpleResponse {
     private Long storeNum;
     private String storeName;
-    private String storeThumbnail;
+    private StoreThumbnailResponse storeThumbnail;
     private int productCount;
     private int followerCount;
     private int storeReviewCount;
@@ -26,7 +27,8 @@ public class StoreSimpleResponse {
         return new StoreSimpleResponse(
                 store.getNum(),
                 store.getStoreName(),
-                store.getStoreThumbnail(),
+                //TODO StoreThumbnail 의 fileName 값에 대한 필요성을 다시 생각하고 필요 없다면 null을 어떻게 처리할지 -> S3FileDto을 변형하든 새로운 파일 DTO를 만들든. 애초에 파일에 이름이 필요한가..?
+                StoreThumbnailResponse.of(store),
                 store.getProducts().size(),
                 store.getFollowers().size(),
                 store.getStoreReviews().size()

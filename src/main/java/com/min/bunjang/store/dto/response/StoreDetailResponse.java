@@ -1,5 +1,6 @@
-package com.min.bunjang.store.dto;
+package com.min.bunjang.store.dto.response;
 
+import com.min.bunjang.aws.s3.dto.S3FileDto;
 import com.min.bunjang.store.model.Store;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import java.time.Period;
 @AllArgsConstructor
 public class StoreDetailResponse {
     private Long storeNum;
-    private String storeThumbnail;
+    private StoreThumbnailResponse storeThumbnail;
     private String storeName;
     private double storeScore;
     private Period openDate;
@@ -23,7 +24,7 @@ public class StoreDetailResponse {
     public static StoreDetailResponse of(Store store) {
         return new StoreDetailResponse(
                 store.getNum(),
-                store.getStoreThumbnail(),
+                StoreThumbnailResponse.of(store),
                 store.getStoreName(),
                 store.calculateAverageDealScore(),
                 store.calculateOpenTime(),

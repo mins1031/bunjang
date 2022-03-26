@@ -5,12 +5,11 @@ import com.min.bunjang.helpers.StoreAcceptanceHelper;
 import com.min.bunjang.integrate.config.IntegrateTestConfig;
 import com.min.bunjang.login.jwt.TokenProvider;
 import com.min.bunjang.member.model.Member;
-import com.min.bunjang.member.repository.MemberRepository;
 import com.min.bunjang.store.controller.StoreControllerPath;
-import com.min.bunjang.store.dto.StoreCreateRequest;
-import com.min.bunjang.store.dto.StoreIntroduceUpdateDto;
-import com.min.bunjang.store.dto.StoreNameUpdateDto;
-import com.min.bunjang.store.dto.VisitorPlusDto;
+import com.min.bunjang.store.dto.request.StoreCreateOrUpdateRequest;
+import com.min.bunjang.store.dto.request.StoreIntroduceUpdateRequest;
+import com.min.bunjang.store.dto.request.StoreNameUpdateRequest;
+import com.min.bunjang.store.dto.request.VisitorPlusDto;
 import com.min.bunjang.store.model.Store;
 import com.min.bunjang.store.repository.StoreRepository;
 import com.min.bunjang.token.dto.TokenValuesDto;
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -50,13 +48,13 @@ public class StoreIntegrateTest extends IntegrateTestConfig {
         String storeName = "storeName";
         String introduceContent = "introduceContent";
 
-        StoreCreateRequest storeCreateRequest = new StoreCreateRequest(storeName, introduceContent);
+        StoreCreateOrUpdateRequest storeCreateOrUpdateRequest = new StoreCreateOrUpdateRequest(storeName, introduceContent, null, null, null, null);
 
         //when & then
         mockMvc.perform(post(StoreControllerPath.STORE_CREATE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .header(TokenProvider.ACCESS_TOKEN_KEY_OF_HEADER, loginResult.getAccessToken())
-                        .content(objectMapper.writeValueAsString(storeCreateRequest)))
+                        .content(objectMapper.writeValueAsString(storeCreateOrUpdateRequest)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("store-create",
@@ -64,8 +62,12 @@ public class StoreIntegrateTest extends IntegrateTestConfig {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("요청 데이터의 타입필드, 요청 객체는 JSON 형태로 요청")
                         ),
                         requestFields(
-                                fieldWithPath("storeName").description("상점명 요청 필드"),
-                                fieldWithPath("introduceContent").description("상점 소개글 요청 필드")
+                                fieldWithPath("storeName").description("상점명 필드"),
+                                fieldWithPath("introduceContent").description("상점 소개글 필드"),
+                                fieldWithPath("storeThumbnail").description("상점 섬네일 필드"),
+                                fieldWithPath("contactableTime").description("상점 응답시간 필드"),
+                                fieldWithPath("exchangeAndReturnAndRefundPolicy").description("상점 교환/환불/반품 주의사항 정보 필드"),
+                                fieldWithPath("cautionNoteBeforeTrade").description("상점 구매전 주의사항 정보 필드")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("응답 데이터의 타입필드, 응답 객체는 JSON 형태로 응답")
@@ -92,13 +94,13 @@ public class StoreIntegrateTest extends IntegrateTestConfig {
         Store store = StoreAcceptanceHelper.상점생성(member, storeRepository);
         String updateIntroduceContent = "updateIntroduceContent";
 
-        StoreIntroduceUpdateDto storeIntroduceUpdateDto = new StoreIntroduceUpdateDto(updateIntroduceContent);
+        StoreIntroduceUpdateRequest storeIntroduceUpdateRequest = new StoreIntroduceUpdateRequest(updateIntroduceContent);
 
         //when & then
         mockMvc.perform(put(StoreControllerPath.STORE_INTRODUCE_CONTENT_UPDATE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .header(TokenProvider.ACCESS_TOKEN_KEY_OF_HEADER, loginResult.getAccessToken())
-                        .content(objectMapper.writeValueAsString(storeIntroduceUpdateDto)))
+                        .content(objectMapper.writeValueAsString(storeIntroduceUpdateRequest)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("store-introduceContent-update",
@@ -131,13 +133,13 @@ public class StoreIntegrateTest extends IntegrateTestConfig {
         Store store = StoreAcceptanceHelper.상점생성(member, storeRepository);
         String updateStoreName = "updateStoreName";
 
-        StoreNameUpdateDto storeNameUpdateDto  = new StoreNameUpdateDto(updateStoreName);
+        StoreNameUpdateRequest storeNameUpdateRequest = new StoreNameUpdateRequest(updateStoreName);
 
         //when & then
         mockMvc.perform(put(StoreControllerPath.STORE_NAME_UPDATE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .header(TokenProvider.ACCESS_TOKEN_KEY_OF_HEADER, loginResult.getAccessToken())
-                        .content(objectMapper.writeValueAsString(storeNameUpdateDto)))
+                        .content(objectMapper.writeValueAsString(storeNameUpdateRequest)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("store-name-update",

@@ -2,11 +2,15 @@ package com.min.bunjang.storereview.model;
 
 import com.min.bunjang.common.exception.ImpossibleException;
 import com.min.bunjang.common.model.BasicEntity;
+import com.min.bunjang.store.model.Store;
+import com.min.bunjang.store.model.StoreThumbnail;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -15,19 +19,17 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreReview extends BasicEntity {
 
-    @NotNull
-    private Long ownerNum;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Store owner;
 
-    @NotNull
-    private Long writerNum;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Store writer;
 
     @NotBlank
     private String writerName;
 
     @NotNull
     private double dealScore;
-
-    private String storeThumbnail;
 
     @NotNull
     private Long productNum;
@@ -37,21 +39,23 @@ public class StoreReview extends BasicEntity {
     @NotBlank
     private String reviewContent;
 
-    public StoreReview(Long ownerNum, Long writerNum, String writerName, double dealScore, String storeThumbnail, Long productNum, String productName, String reviewContent) {
-        this.ownerNum = ownerNum;
-        this.writerNum = writerNum;
+    private Long storeThumbnailNum;
+
+    public StoreReview(Store owner, Store writer, String writerName, double dealScore, Long storeThumbnail, Long productNum, String productName, String reviewContent) {
+        this.owner = owner;
+        this.writer = writer;
         this.writerName = writerName;
         this.dealScore = dealScore;
-        this.storeThumbnail = storeThumbnail;
+        this.storeThumbnailNum = storeThumbnail;
         this.productNum = productNum;
         this.productName = productName;
         this.reviewContent = reviewContent;
     }
 
-    public static StoreReview createStoreReview(Long ownerNum, Long writerNum, String writerName, double dealScore, String storeThumbnail, Long productNum, String productName, String reviewContent) {
+    public static StoreReview createStoreReview(Store owner, Store writer, String writerName, double dealScore, Long storeThumbnail, Long productNum, String productName, String reviewContent) {
         return new StoreReview(
-                ownerNum,
-                writerNum,
+                owner,
+                writer,
                 writerName,
                 dealScore,
                 storeThumbnail,
@@ -74,7 +78,15 @@ public class StoreReview extends BasicEntity {
         this.reviewContent = reviewContent;
     }
 
-    public boolean verifyWriter(Long rowWriterNum) {
-        return this.writerNum.equals(writerNum);
+    public boolean verifyWriter(Store writer) {
+        return this.writer.equals(writer);
+    }
+
+    public void defineStoreThumbnailNum(StoreThumbnail storeThumbnail) {
+        if (storeThumbnail == null) {
+            return;
+        }
+
+        this.storeThumbnailNum = storeThumbnail.getNum();
     }
 }

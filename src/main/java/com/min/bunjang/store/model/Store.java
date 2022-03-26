@@ -5,6 +5,7 @@ import com.min.bunjang.common.model.BasicEntity;
 import com.min.bunjang.following.model.Following;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.product.model.Product;
+import com.min.bunjang.store.dto.request.StoreCreateOrUpdateRequest;
 import com.min.bunjang.storereview.model.StoreReview;
 import com.min.bunjang.trade.model.Trade;
 import com.min.bunjang.wishproduct.model.WishProduct;
@@ -36,10 +37,11 @@ public class Store extends BasicEntity {
 
     private String introduceContent;
 
-    private String storeThumbnail;
-
     @OneToOne(fetch = FetchType.LAZY)
     private Member member;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private StoreThumbnail storeThumbnail;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "visitor",
@@ -52,7 +54,7 @@ public class Store extends BasicEntity {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "store", orphanRemoval = true)
     private Set<WishProduct> wishProducts = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "ownerNum", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "owner", orphanRemoval = true)
     private Set<StoreReview> storeReviews = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "followerStore", orphanRemoval = true)
@@ -63,15 +65,35 @@ public class Store extends BasicEntity {
 
     private int hits;
 
-    public Store(String storeName, String introduceContent, String storeThumbnail, Member member) {
+    private String contactableTime;
+    private String exchangeAndReturnAndRefundPolicy;
+    private String cautionNoteBeforeTrade;
+
+    public Store(String storeName, String introduceContent, StoreThumbnail storeThumbnail, Member member) {
         this.storeName = storeName;
         this.introduceContent = introduceContent;
         this.storeThumbnail = storeThumbnail;
         this.member = member;
+        this.hits = 0;
+        this.contactableTime = "24시간";
+        this.exchangeAndReturnAndRefundPolicy = "";
+        this.cautionNoteBeforeTrade = "";
     }
 
-    public static Store createStore(String storeName, String introduceContent, String storeThumbnail, Member member) {
+    public static Store createStore(String storeName, String introduceContent, StoreThumbnail storeThumbnail, Member member) {
         return new Store(storeName, introduceContent, storeThumbnail, member);
+    }
+
+    public void updateStore(StoreCreateOrUpdateRequest storeCreateOrUpdateRequest) {
+        this.storeName = storeCreateOrUpdateRequest.getStoreName();
+        this.introduceContent = storeCreateOrUpdateRequest.getIntroduceContent();
+        this.contactableTime = storeCreateOrUpdateRequest.getContactableTime();
+        this.exchangeAndReturnAndRefundPolicy = storeCreateOrUpdateRequest.getExchangeAndReturnAndRefundPolicy();
+        this.cautionNoteBeforeTrade = storeCreateOrUpdateRequest.getCautionNoteBeforeTrade();
+    }
+
+    public void updateThumbnail(StoreThumbnail storeThumbnail) {
+        this.storeThumbnail = storeThumbnail;
     }
 
     public void updateIntroduceContent(String introduceContent) {
@@ -121,4 +143,11 @@ public class Store extends BasicEntity {
 
         return this.member.getEmail().equals(memberEmail);
     }
+
+    public boolean checkExistThumbnail() {
+        return this.storeThumbnail != null;
+    }
+
+
+
 }
