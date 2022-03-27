@@ -5,6 +5,7 @@ import com.min.bunjang.common.model.BasicEntity;
 import com.min.bunjang.following.model.Following;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.product.model.Product;
+import com.min.bunjang.security.MemberAccount;
 import com.min.bunjang.store.dto.request.StoreCreateOrUpdateRequest;
 import com.min.bunjang.storereview.model.StoreReview;
 import com.min.bunjang.trade.model.Trade;
@@ -26,6 +27,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -40,7 +42,7 @@ public class Store extends BasicEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "store", orphanRemoval = true)
     private StoreThumbnail storeThumbnail;
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -122,7 +124,7 @@ public class Store extends BasicEntity {
         return average / this.storeReviews.size();
     }
 
-    public void addHitsCount(String email) {
+    public void addHitsCount(MemberAccount email) {
         if (email == null) {
             return;
         }
@@ -148,6 +150,16 @@ public class Store extends BasicEntity {
         return this.storeThumbnail != null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Store store = (Store) o;
+        return hits == store.hits && Objects.equals(storeName, store.storeName) && Objects.equals(introduceContent, store.introduceContent) && Objects.equals(member, store.member) && Objects.equals(storeThumbnail, store.storeThumbnail) && Objects.equals(visitors, store.visitors) && Objects.equals(Products, store.Products) && Objects.equals(wishProducts, store.wishProducts) && Objects.equals(storeReviews, store.storeReviews) && Objects.equals(followings, store.followings) && Objects.equals(followers, store.followers) && Objects.equals(contactableTime, store.contactableTime) && Objects.equals(exchangeAndReturnAndRefundPolicy, store.exchangeAndReturnAndRefundPolicy) && Objects.equals(cautionNoteBeforeTrade, store.cautionNoteBeforeTrade);
+    }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(storeName, introduceContent, member, storeThumbnail, visitors, Products, wishProducts, storeReviews, followings, followers, hits, contactableTime, exchangeAndReturnAndRefundPolicy, cautionNoteBeforeTrade);
+    }
 }

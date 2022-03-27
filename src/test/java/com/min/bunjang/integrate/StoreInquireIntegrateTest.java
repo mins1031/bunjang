@@ -60,7 +60,7 @@ public class StoreInquireIntegrateTest extends IntegrateTestConfig {
         Store owner = StoreAcceptanceHelper.상점생성(ownerMember, storeRepository);
         Store visitor = StoreAcceptanceHelper.상점생성(visitorMember, storeRepository);
 
-        InquireCreateRequest inquireCreateRequest = new InquireCreateRequest(owner.getNum(), "상점문의");
+        InquireCreateRequest inquireCreateRequest = new InquireCreateRequest(owner.getNum(), visitor.getNum(), "상점문의", null);
         //when & then
         mockMvc.perform(post(StoreInquireControllerPath.CREATE_INQUIRY)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -73,8 +73,10 @@ public class StoreInquireIntegrateTest extends IntegrateTestConfig {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("요청 데이터의 타입필드, 요청 객체는 JSON 형태로 요청")
                         ),
                         requestFields(
-                                fieldWithPath("ownerNum").description("방문받은 상점 식별자 정보 필드."),
-                                fieldWithPath("inquireContent").description("문의 내용 정보 필드")
+                                fieldWithPath("ownerNum").description("문의받은 상점 식별자 정보 필드."),
+                                fieldWithPath("writerNum").description("문의한 상점 식별자 정보 필드."),
+                                fieldWithPath("inquireContent").description("문의 내용 정보 필드"),
+                                fieldWithPath("mentionedStoreNumForAnswer").description("문의답변을 받아야 하는 문의 작성 상점 식별자 정보 필드")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("응답 데이터의 타입필드, 응답 객체는 JSON 형태로 응답")
@@ -106,8 +108,8 @@ public class StoreInquireIntegrateTest extends IntegrateTestConfig {
         Store writer = StoreAcceptanceHelper.상점생성(writerMember, storeRepository);
 
         storeInquireRepository.saveAll(Arrays.asList(
-                StoreInquire.of(owner.getNum(), writer, null, "content1"),
-                StoreInquire.of(owner.getNum(), writer, null, "content2")
+                StoreInquire.of(owner.getNum(), writer, "content1"),
+                StoreInquire.of(owner.getNum(), writer, "content2")
         ));
 
         //when & then
@@ -144,7 +146,7 @@ public class StoreInquireIntegrateTest extends IntegrateTestConfig {
         Store owner = StoreAcceptanceHelper.상점생성(ownerMember, storeRepository);
         Store visitor = StoreAcceptanceHelper.상점생성(visitorMember, storeRepository);
 
-        StoreInquire storeInquire = StoreInquire.of(owner.getNum(), visitor, null, "상점문의");
+        StoreInquire storeInquire = StoreInquire.of(owner.getNum(), visitor, "상점문의");
         StoreInquire savedStoreInquiry = storeInquireRepository.save(storeInquire);
 
         //when & then

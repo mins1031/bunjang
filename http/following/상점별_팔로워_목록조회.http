@@ -13,14 +13,17 @@ Authorization: eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVyaXNlZ2VhQG5hdmVyLmNvbSIsImlh
 #        "storeSimpleResponses": {
 #          "storeNum": 1,
 #          "storeName": "생성 테스트용 상점명 변경 테스트",
-#          "storeThumbnail": null,
+#          "storeThumbnail": {
+#            "fileNum": 29,
+#            "fileLocation": "https://mins-bunjang-bucket.s3.ap-northeast-2.amazonaws.com/petit-minou-lighthouse-g7a7213b31_1920.jpg"
+#          },
 #          "productCount": 7,
 #          "followerCount": 0,
-#          "storeReviewCount": 0
+#          "storeReviewCount": 2
 #        }
 #      }
 #    ]
 #  }
 #}
 #
-#Response code: 200; Time: 105ms; Content length: 239 bytes
+#Response code: 200; Time: 154ms; Content length: 369 bytes

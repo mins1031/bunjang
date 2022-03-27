@@ -99,6 +99,7 @@ public class StoreReviewIntegrateTest extends IntegrateTestConfig {
                         responseFields(
                                 fieldWithPath("statusCode").description("요청의 성공 여부입니다. 201이면 성공, 500번 대는 실패."),
                                 fieldWithPath("message").description("예외 발생시 메세지 정보 필드."),
+                                fieldWithPath("result.reviewNum").description("생성된 후기 식별자 정보 필드."),
                                 fieldWithPath("result.writerNum").description("후기 쓴 상점 식별자 정보 필드."),
                                 fieldWithPath("result.writerThumbnail").description("후기 쓴 상점 섬네일 정보 필드."),
                                 fieldWithPath("result.writerName").description("후기 쓴 상점명 정보 필드."),
@@ -130,7 +131,7 @@ public class StoreReviewIntegrateTest extends IntegrateTestConfig {
         Product product = productRepository.save(new Product("productName"));
 
         StoreReview storeReview = storeReviewRepository.save(
-                StoreReview.createStoreReview(owner, writer, writer.getStoreName(), 5.0, null, product.getNum(), product.getProductName(), "reviewContent")
+                StoreReview.createStoreReview(owner, writer, writer.getStoreName(), 5.0, product.getNum(), product.getProductName(), "reviewContent")
         );
 
         //when & then
@@ -174,7 +175,7 @@ public class StoreReviewIntegrateTest extends IntegrateTestConfig {
         Product product = productRepository.save(new Product("productName"));
 
         StoreReview storeReview = storeReviewRepository.save(
-                StoreReview.createStoreReview(owner, writer, writer.getStoreName(), 5.0, null, product.getNum(), product.getProductName(), "reviewContent")
+                StoreReview.createStoreReview(owner, writer, writer.getStoreName(), 5.0, product.getNum(), product.getProductName(), "reviewContent")
         );
 
         double updateDealScore = 4.5;
@@ -228,7 +229,7 @@ public class StoreReviewIntegrateTest extends IntegrateTestConfig {
         Product product = productRepository.save(new Product("productName"));
 
         StoreReview storeReview = storeReviewRepository.save(
-                StoreReview.createStoreReview(owner, writer, writer.getStoreName(), 5.0, null, product.getNum(), product.getProductName(), "reviewContent")
+                StoreReview.createStoreReview(owner, writer, writer.getStoreName(), 5.0, product.getNum(), product.getProductName(), "reviewContent")
         );
 
         //when & then
