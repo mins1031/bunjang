@@ -1,0 +1,16 @@
+PUT http://localhost:8080/store/introduce
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVyaXNlZ2VhQG5hdmVyLmNvbSIsImlhdCI6MTY0NjU0MDAxOSwiZXhwIjoxNjQ2NTQxODE5fQ.Sku5dpLWpEZTyNhHvoXfEKQuK7qFvWp0OwCKfT9bFxg
+
+#res
+#{
+#  "statusCode": "OK",
+#  "message": null,
+#  "result": null
+#}
+#Response code: 200; Time: 99ms; Content length: 48 bytes
+
+#req
+{
+  "updateIntroduceContent":  "생성 테스트용 상점 소개글 수정"
+}

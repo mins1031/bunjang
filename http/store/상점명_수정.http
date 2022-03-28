@@ -1,0 +1,15 @@
+PUT http://localhost:8080/store/name
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVyaXNlZ2VhQG5hdmVyLmNvbSIsImlhdCI6MTY0NjU0MDAxOSwiZXhwIjoxNjQ2NTQxODE5fQ.Sku5dpLWpEZTyNhHvoXfEKQuK7qFvWp0OwCKfT9bFxg
+
+#res
+#{
+#  "statusCode": "OK",
+#  "message": null,
+#  "result": null
+#}
+
+#req
+{
+  "updatedStoreName": "생성 테스트용 상점명 변경 테스트"
+}

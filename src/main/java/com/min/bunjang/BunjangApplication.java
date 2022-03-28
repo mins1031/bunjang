@@ -1,15 +1,14 @@
 package com.min.bunjang;
 
-import com.min.bunjang.login.jwt.JwtTokenProperty;
+import com.min.bunjang.login.jwt.properties.JwtTokenProperty;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.mail.javamail.JavaMailSender;
 
 @SpringBootApplication
-@EnableJpaAuditing
-@EnableConfigurationProperties(JwtTokenProperty.class)
 public class BunjangApplication {
 
     public static void main(String[] args) {

@@ -1,0 +1,21 @@
+POST http://localhost:8080/store-inquire
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InVyaXNlZ2VhQG5hdmVyLmNvbSIsImlhdCI6MTY0NjU0MDAxOSwiZXhwIjoxNjQ2NTQxODE5fQ.Sku5dpLWpEZTyNhHvoXfEKQuK7qFvWp0OwCKfT9bFxg
+
+#res
+#{
+#  "statusCode": "CREATED",
+#  "message": null,
+#  "result": {
+#    "inquireNum": 1,
+#    "writerName": "testStore",
+#    "inquireContent": "테스트용 상점문의 입니다."
+#  }
+#}
+
+#req
+{
+  "ownerNum": 1,
+  "writerNum": 2,
+  "inquireContent": "테스트용 상점문의 입니다."
+}

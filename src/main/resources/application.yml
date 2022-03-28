@@ -4,3 +4,5 @@ spring:
     include:
       - db
       - security
+      - email
+      - aws
