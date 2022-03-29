@@ -1,5 +1,6 @@
 package com.min.bunjang.member.model;
 
+import com.min.bunjang.common.exception.ImpossibleException;
 import com.min.bunjang.login.exception.NotMacheEmailAndPasswordException;
 import com.min.bunjang.member.dto.MemberDirectCreateDto;
 import com.min.bunjang.store.model.Store;
@@ -79,7 +80,8 @@ public class Member {
             LocalDate birthDate,
             LocalDateTime joinDate,
             LocalDateTime updatedDate,
-            MemberRole memberRole
+            MemberRole memberRole,
+            MemberGender memberGender
     ) {
         this.memberNum = memberNum;
         this.email = email;
@@ -90,6 +92,7 @@ public class Member {
         this.joinDate = joinDate;
         this.updatedDate = updatedDate;
         this.memberRole = memberRole;
+        this.memberGender = memberGender;
     }
 
     public static Member createMember(MemberDirectCreateDto memberDirectCreateDto) {
@@ -102,6 +105,7 @@ public class Member {
                 .joinDate(LocalDateTime.now())
                 .updatedDate(LocalDateTime.now())
                 .memberRole(memberDirectCreateDto.getMemberRole())
+                .memberGender(memberDirectCreateDto.getMemberGender())
                 .build();
     }
 
@@ -111,12 +115,27 @@ public class Member {
         }
     }
 
-    public boolean verifyEmailMatch(String rowEmail) {
-        return this.email.equals(rowEmail);
+    public void verifyEmailMatch(String rowEmail) {
+        if (rowEmail == null){
+            throw new ImpossibleException("요청한 사용자 정보가 없습니다.. 잘못된 접근입니다.");
+        }
+
+        if (!this.email.equals(rowEmail)) {
+            throw new ImpossibleException("요청한 사용자와 해당 멤버정보가 다릅니다. 잘못된 접근입니다.");
+        }
+
     }
 
     public void changeGender(MemberGender memberGender) {
         this.memberGender = memberGender;
+    }
+
+    public void changeBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void changePhone(String phone) {
+        this.phone = phone;
     }
 
     @Override
