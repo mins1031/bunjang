@@ -9,6 +9,7 @@ import com.min.bunjang.join.controller.EmailJoinControllerPath;
 import com.min.bunjang.join.dto.JoinRequest;
 import com.min.bunjang.join.dto.TempJoinRequest;
 import com.min.bunjang.member.model.JoinTempMember;
+import com.min.bunjang.member.model.MemberGender;
 import com.min.bunjang.member.repository.JoinTempMemberRepository;
 import com.min.bunjang.testconfig.RestDocsConfiguration;
 import org.junit.jupiter.api.AfterEach;
@@ -147,7 +148,7 @@ public class JoinIntegrateTest extends IntegrateTestConfig {
         JoinTempMember joinTempMember = JoinTempMember.createJoinTempMember(tempJoinRequest, bCryptPasswordEncoder);
         JoinTempMember savedJoinTempMember = joinTempMemberRepository.save(joinTempMember);
 
-        JoinRequest joinRequest = new JoinRequest(savedJoinTempMember.getEmail());
+        JoinRequest joinRequest = new JoinRequest(savedJoinTempMember.getEmail(), MemberGender.MEN);
 
         //when & then
         mockMvc.perform(post(EmailJoinControllerPath.JOIN_MEMBER_REQUEST)
@@ -159,7 +160,8 @@ public class JoinIntegrateTest extends IntegrateTestConfig {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("요청 데이터의 타입필드, 요청 객체는 JSON 형태로 요청")
                         ),
                         requestFields(
-                                fieldWithPath("email").description("이메일 인증후 응답된 회원 이메일 데이터.")
+                                fieldWithPath("email").description("이메일 인증후 응답된 회원 이메일 데이터."),
+                                fieldWithPath("memberGender").description("회원가입에 필요한 회원 성별 데이터.")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("응답 데이터의 타입필드, 응답 객체는 JSON 형태로 응답")

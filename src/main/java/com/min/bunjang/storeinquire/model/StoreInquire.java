@@ -1,8 +1,8 @@
 package com.min.bunjang.storeinquire.model;
 
+import com.min.bunjang.common.exception.WrongWriterException;
 import com.min.bunjang.common.model.BasicEntity;
 import com.min.bunjang.store.model.Store;
-import com.min.bunjang.store.model.StoreThumbnail;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,6 @@ public class StoreInquire extends BasicEntity {
     @NotBlank
     private String content;
 
-    //TODO 맨션 관련 추가 테스트 필요.
     private Long mentionedStoreNumForAnswer;
     private String mentionedStoreNameForAnswer;
 
@@ -45,5 +44,4 @@ public class StoreInquire extends BasicEntity {
         this.mentionedStoreNumForAnswer = mentionedStoreNumForAnswer;
         this.mentionedStoreNameForAnswer = mentionedStoreNameForAnswer;
     }
-
 }

@@ -7,10 +7,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.min.bunjang.category.repository.FirstProductCategoryRepository;
+import com.min.bunjang.category.repository.SecondProductCategoryRepository;
+import com.min.bunjang.category.repository.ThirdProductCategoryRepository;
 import com.min.bunjang.common.database.DatabaseCleanup;
 import com.min.bunjang.common.dto.RestResponse;
+import com.min.bunjang.login.jwt.JwtAuthenticationFilter;
 import com.min.bunjang.login.jwt.TokenProvider;
 import com.min.bunjang.member.repository.MemberRepository;
+import com.min.bunjang.product.repository.ProductRepository;
+import com.min.bunjang.product.repository.ProductTagRepository;
 import com.min.bunjang.store.repository.StoreRepository;
 import com.sun.istack.Nullable;
 import io.restassured.RestAssured;
@@ -24,6 +30,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.Map;
 
 @ActiveProfiles("h2")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -52,6 +60,18 @@ public class AcceptanceTestConfig {
     @Autowired
     protected StoreRepository storeRepository;
 
+    @Autowired
+    protected ProductRepository productRepository;
+
+    @Autowired
+    protected FirstProductCategoryRepository firstProductCategoryRepository;
+
+    @Autowired
+    protected SecondProductCategoryRepository secondProductCategoryRepository;
+
+    @Autowired
+    protected ThirdProductCategoryRepository thirdProductCategoryRepository;
+
     @BeforeEach
     public void setUp() {
         RestAssured.port = port;
@@ -64,12 +84,12 @@ public class AcceptanceTestConfig {
         return toResponseEntityFromMvcResult(res, responseType);
     }
 
-//    public static <T> ResponseEntity<T> getApi(String path, String token, Map<String, String> parameter, TypeReference<ResponseEntity<T>> responseType) {
-//        String res = baseConfig(token, parameter)
-//                .get(path)
-//                .asString();
-//        return toCustomResponseFromMvcResult(res, responseType);
-//    }
+    public static <T> RestResponse<T> getApiWithKeyword(String path, String token, Map<String, String> parameter, TypeReference<RestResponse<T>> responseType) {
+        String res = baseConfigWithParam(token, parameter)
+                .get(path)
+                .asString();
+        return toResponseEntityFromMvcResult(res, responseType);
+    }
 
     public static <T> RestResponse<T> postApi(String path, Object body, TypeReference<RestResponse<T>> responseType, String token) {
         String response = baseConfig(token)
@@ -107,15 +127,14 @@ public class AcceptanceTestConfig {
                 .when();
     }
 
-//    private static RequestSpecification baseConfig(String token, Map<String, String> parameter) {
-//        return RestAssured.given().log().all()
-//                .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                .accept(MediaType.APPLICATION_JSON_VALUE)
-//                .header(JwtAuthenticationFilter.ACCESS_TOKEN_KEY_OF_HEADER, token)
-//                .param("keyword", parameter.get("keyword"))
-//                .param("organizerName", parameter.get("organizerName"))
-//                .when();
-//    }
+    private static RequestSpecification baseConfigWithParam(String token, Map<String, String> parameter) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .header(TokenProvider.ACCESS_TOKEN_KEY_OF_HEADER, token)
+                .param("keyword", parameter.get("keyword"))
+                .when();
+    }
 
     @Nullable
     private static String toContent(Object body) {

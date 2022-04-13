@@ -28,15 +28,14 @@ import java.util.Optional;
 public class StoreReviewService {
     private final StoreReviewRepository storeReviewRepository;
     private final ProductRepository productRepository;
-    private final MemberRepository memberRepository;
     private final StoreRepository storeRepository;
 
     @Transactional
-    public StoreReviewResponse createStoreReview(String memberEmail, StoreReviewCreateRequest storeReviewCreateRequest) {
+    public StoreReviewResponse createStoreReview(String requesterEmail, StoreReviewCreateRequest storeReviewCreateRequest) {
         Store owner = storeRepository.findById(storeReviewCreateRequest.getOwnerNum()).orElseThrow(NotExistStoreException::new);
         Store writer = storeRepository.findById(storeReviewCreateRequest.getWriterNum()).orElseThrow(NotExistStoreException::new);
         Product product = productRepository.findById(storeReviewCreateRequest.getProductNum()).orElseThrow(NotExistProductException::new);
-        MemberAndStoreValidator.verifyMemberAndStoreMatchByEmail(memberEmail, writer);
+        MemberAndStoreValidator.verifyMemberAndStoreMatchByEmail(requesterEmail, writer);
         StoreReview storeReview = StoreReview.createStoreReview(
                 owner,
                 writer,
@@ -47,36 +46,28 @@ public class StoreReviewService {
                 storeReviewCreateRequest.getReviewContent()
         );
 
-        //TODO StoreReviewResponse에서 단순하게 그냥 StoreResponse포함하고 리뷰 내용 뭐 이정도만 해도 될지 의문 지금으로선 StoreReviewResponse를 왜 구현했는지도 의문
+        //TODO !StoreReviewResponse에서 단순하게 그냥 StoreResponse포함하고 리뷰 내용 뭐 이정도만 해도 될지 의문 지금으로선 StoreReviewResponse를 왜 구현했는지도 의문
+        //TODO -> 현재 상점리뷰는 상품을 구매한 이력이 있어야 남길수 있는데 확인이 불가능하다. 오히려 리뷰생성로직이 변해야하는 상황. 일단 응답은 만들어진 리뷰를 리턴하는 대로 둠.
         return StoreReviewResponse.of(storeReviewRepository.save(storeReview));
     }
 
     @Transactional
-    public void updateStoreReview(String memberEmail, StoreReviewUpdateRequest storeReviewUpdateRequest) {
-        Member writer = memberRepository.findByEmail(memberEmail).orElseThrow(NotExistMemberException::new);
+    public void updateStoreReview(String requesterEmail, StoreReviewUpdateRequest storeReviewUpdateRequest) {
         StoreReview storeReview = storeReviewRepository.findById(storeReviewUpdateRequest.getReviewNum()).orElseThrow(NotExistStoreReviewException::new);
-//        verifyMatchReviewerAndRequester(storeReview, writer);
+        MemberAndStoreValidator.verifyMemberAndStoreMatchByEmail(requesterEmail, storeReview.getWriter());
 
         storeReview.updateReviewContent(storeReviewUpdateRequest.getUpdatedReviewContent(), storeReviewUpdateRequest.getUpdatedDealScore());
     }
 
     @Transactional
-    public void deleteStoreReview(String memberEmail, Long reviewNum) {
+    public void deleteStoreReview(String requesterEmail, Long reviewNum) {
         if (reviewNum == null) {
             throw new ImpossibleException("삭제요청한 리뷰의 식별자가 null입니다. 잘못된 요청입니다.");
         }
 
-        Member writer = memberRepository.findByEmail(memberEmail).orElseThrow(NotExistMemberException::new);
         StoreReview storeReview = storeReviewRepository.findById(reviewNum).orElseThrow(NotExistStoreReviewException::new);
-//        verifyMatchReviewerAndRequester(storeReview, writer);
+        MemberAndStoreValidator.verifyMemberAndStoreMatchByEmail(requesterEmail, storeReview.getWriter());
 
         storeReviewRepository.deleteById(reviewNum);
     }
-
-    //TODO 로직 다시 검점할것.
-//    private void verifyMatchReviewerAndRequester(StoreReview storeReview, Member writer) {
-//        if (!storeReview.verifyWriter(writer)) {
-//            throw new ImpossibleException("수정하려는 사용자가 후기를 입력한 사용자가 아닙니다. 잘못된 접근입니다.");
-//        }
-//    }
 }

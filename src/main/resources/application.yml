@@ -3,6 +3,7 @@ spring:
     active: local
     include:
       - db
+      - aws
       - security
       - email
-      - aws
+      - oauth
