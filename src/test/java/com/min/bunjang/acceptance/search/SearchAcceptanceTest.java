@@ -1,5 +1,6 @@
 package com.min.bunjang.acceptance.search;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.min.bunjang.acceptance.common.AcceptanceTestConfig;
 import com.min.bunjang.category.model.FirstProductCategory;
@@ -11,7 +12,7 @@ import com.min.bunjang.helpers.ProductHelper;
 import com.min.bunjang.helpers.StoreAcceptanceHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.product.controller.ProductSearchControllerPath;
-import com.min.bunjang.product.dto.ProductSimpleResponses;
+import com.min.bunjang.product.dto.response.ProductSimpleResponses;
 import com.min.bunjang.product.model.Product;
 import com.min.bunjang.store.controller.StoreSearchControllerPath;
 import com.min.bunjang.store.dto.response.StoreSimpleResponses;
@@ -94,8 +95,8 @@ public class SearchAcceptanceTest extends AcceptanceTestConfig {
 
     }
 
-    private ProductSimpleResponses 상품_상품명_검색_요청(TokenValuesDto loginResult, Map<String, String> parameter) {
-        ProductSimpleResponses result = getApiWithKeyword(ProductSearchControllerPath.PRODUCT_SEARCH_BY_KEYWORD, loginResult.getAccessToken(), parameter, new TypeReference<RestResponse<ProductSimpleResponses>>() {
+    private ProductSimpleResponses 상품_상품명_검색_요청(TokenValuesDto loginResult, Map<String, String> parameter) throws JsonProcessingException {
+        ProductSimpleResponses result = getRequestWithKeyword(ProductSearchControllerPath.PRODUCT_SEARCH_BY_KEYWORD, loginResult.getAccessToken(), parameter, new TypeReference<RestResponse<ProductSimpleResponses>>() {
         }).getResult();
         return result;
     }
@@ -106,19 +107,19 @@ public class SearchAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(result.getProductSimpleResponses().get(1).getProductName()).isEqualTo(product1.getProductName());
     }
 
-    private ProductSimpleResponses 상품_지역명_검색_요청(TokenValuesDto loginResult, Map<String, String> parameter) {
-        return getApiWithKeyword(ProductSearchControllerPath.PRODUCT_SEARCH_BY_KEYWORD, loginResult.getAccessToken(), parameter, new TypeReference<RestResponse<ProductSimpleResponses>>() {
+    private ProductSimpleResponses 상품_지역명_검색_요청(TokenValuesDto loginResult, Map<String, String> parameter) throws JsonProcessingException {
+        return getRequestWithKeyword(ProductSearchControllerPath.PRODUCT_SEARCH_BY_KEYWORD, loginResult.getAccessToken(), parameter, new TypeReference<RestResponse<ProductSimpleResponses>>() {
         }).getResult();
     }
 
     private void 상품_지역명_검색_응답_검증(Product product1, Product product3, ProductSimpleResponses result) {
         Assertions.assertThat(result.getProductSimpleResponses()).hasSize(2);
-        Assertions.assertThat(result.getProductSimpleResponses().get(0).getExchangeLocation()).isEqualTo(product3.getExchangeLocation());
-        Assertions.assertThat(result.getProductSimpleResponses().get(1).getExchangeLocation()).isEqualTo(product1.getExchangeLocation());
+        Assertions.assertThat(result.getProductSimpleResponses().get(0).getExchangeLocation()).isEqualTo(product3.getTradeLocation());
+        Assertions.assertThat(result.getProductSimpleResponses().get(1).getExchangeLocation()).isEqualTo(product1.getTradeLocation());
     }
 
-    private StoreSimpleResponses 상점명_검색_요청(TokenValuesDto loginResult, Map<String, String> parameter) {
-        return getApiWithKeyword(StoreSearchControllerPath.STORE_SEARCH_BY_KEYWORD, loginResult.getAccessToken(), parameter, new TypeReference<RestResponse<StoreSimpleResponses>>() {
+    private StoreSimpleResponses 상점명_검색_요청(TokenValuesDto loginResult, Map<String, String> parameter) throws JsonProcessingException {
+        return getRequestWithKeyword(StoreSearchControllerPath.STORE_SEARCH_BY_KEYWORD, loginResult.getAccessToken(), parameter, new TypeReference<RestResponse<StoreSimpleResponses>>() {
                         }).getResult();
     }
 

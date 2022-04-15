@@ -1,5 +1,6 @@
 package com.min.bunjang.acceptance.trade;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.min.bunjang.acceptance.common.AcceptanceTestConfig;
 import com.min.bunjang.category.model.FirstProductCategory;
@@ -12,18 +13,17 @@ import com.min.bunjang.common.dto.RestResponse;
 import com.min.bunjang.helpers.MemberAcceptanceHelper;
 import com.min.bunjang.helpers.StoreAcceptanceHelper;
 import com.min.bunjang.member.model.Member;
-import com.min.bunjang.product.dto.ProductCreateOrUpdateRequest;
+import com.min.bunjang.product.dto.request.ProductCreateOrUpdateRequest;
 import com.min.bunjang.product.model.DeliveryChargeInPrice;
 import com.min.bunjang.product.model.ExchangeState;
 import com.min.bunjang.product.model.Product;
 import com.min.bunjang.product.model.ProductQualityState;
 import com.min.bunjang.product.repository.ProductRepository;
-import com.min.bunjang.product.repository.ProductTagRepository;
 import com.min.bunjang.store.model.Store;
 import com.min.bunjang.token.dto.TokenValuesDto;
 import com.min.bunjang.trade.controller.TradeControllerPath;
-import com.min.bunjang.trade.dto.TradeCreateRequest;
-import com.min.bunjang.trade.dto.TradeCreateResponse;
+import com.min.bunjang.trade.dto.request.TradeCreateRequest;
+import com.min.bunjang.trade.dto.response.TradeCreateResponse;
 import com.min.bunjang.trade.model.Trade;
 import com.min.bunjang.trade.model.TradeState;
 import com.min.bunjang.trade.repository.TradeRepository;
@@ -128,8 +128,8 @@ public class TradeAcceptanceTest extends AcceptanceTestConfig {
 
     }
 
-    private void 거래_생성_요청(TokenValuesDto loginResult, TradeCreateRequest tradeCreateRequest) {
-        postApi(TradeControllerPath.TRADE_CREATE, tradeCreateRequest, new TypeReference<RestResponse<TradeCreateResponse>>() {
+    private void 거래_생성_요청(TokenValuesDto loginResult, TradeCreateRequest tradeCreateRequest) throws JsonProcessingException {
+        postRequest(TradeControllerPath.TRADE_CREATE, tradeCreateRequest, new TypeReference<RestResponse<TradeCreateResponse>>() {
         }, loginResult.getAccessToken());
     }
 
@@ -138,9 +138,9 @@ public class TradeAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(trades).hasSize(1);
     }
 
-    private void 거래_완료_요청(TokenValuesDto loginResult, String tradeComplete, Long num) {
+    private void 거래_완료_요청(TokenValuesDto loginResult, String tradeComplete, Long num) throws JsonProcessingException {
         String path = tradeComplete.replace("{tradeNum}", String.valueOf(num));
-        patchApi(path, null, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
+        patchRequest(path, null, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
     }
 
     private void 거래_완료_응답_검증(Long num, TradeState tradeComplete) {
@@ -148,9 +148,9 @@ public class TradeAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(completedTrade.getTradeState()).isEqualTo(tradeComplete);
     }
 
-    private void 거래_삭제_요청(TokenValuesDto loginResult, Long tradeNum) {
+    private void 거래_삭제_요청(TokenValuesDto loginResult, Long tradeNum) throws JsonProcessingException {
         String path = TradeControllerPath.TRADE_CANCEL.replace("{tradeNum}", String.valueOf(tradeNum));
-        deleteApi(path, null, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
+        deleteRequest(path, null, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
     }
 
     private void 거래_삭제_응답_검증(Long tradeNum, TradeState tradeCancel) {

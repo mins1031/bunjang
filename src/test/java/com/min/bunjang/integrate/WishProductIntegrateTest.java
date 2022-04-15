@@ -7,17 +7,15 @@ import com.min.bunjang.helpers.MemberAcceptanceHelper;
 import com.min.bunjang.helpers.ProductHelper;
 import com.min.bunjang.helpers.StoreAcceptanceHelper;
 import com.min.bunjang.integrate.config.IntegrateTestConfig;
-import com.min.bunjang.login.jwt.TokenProvider;
+import com.min.bunjang.token.jwt.TokenProvider;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.product.model.Product;
-import com.min.bunjang.product.repository.ProductRepository;
 import com.min.bunjang.store.model.Store;
-import com.min.bunjang.store.repository.StoreRepository;
 import com.min.bunjang.token.dto.TokenValuesDto;
 import com.min.bunjang.wishproduct.controller.WishProductControllerPath;
 import com.min.bunjang.wishproduct.controller.WishProductViewControllerPath;
-import com.min.bunjang.wishproduct.dto.WishProductCreateRequest;
-import com.min.bunjang.wishproduct.dto.WishProductsDeleteRequest;
+import com.min.bunjang.wishproduct.dto.request.WishProductCreateRequest;
+import com.min.bunjang.wishproduct.dto.request.WishProductsDeleteRequest;
 import com.min.bunjang.wishproduct.model.WishProduct;
 import com.min.bunjang.wishproduct.repository.WishProductRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -77,7 +75,7 @@ public class WishProductIntegrateTest extends IntegrateTestConfig {
         mockMvc.perform(post(WishProductControllerPath.WISH_PRODUCT_CREATE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(wishProductCreateRequest))
-                        .header(TokenProvider.ACCESS_TOKEN_KEY_OF_HEADER, loginResult.getAccessToken()))
+                        .header(TokenProvider.ACCESS_TOKEN_KEY_NAME, loginResult.getAccessToken()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("wishProduct-create",
@@ -126,7 +124,7 @@ public class WishProductIntegrateTest extends IntegrateTestConfig {
         //when & then
         mockMvc.perform(RestDocumentationRequestBuilders.get(WishProductViewControllerPath.WISH_PRODUCT_FIND_BY_STORE, owner.getNum())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .header(TokenProvider.ACCESS_TOKEN_KEY_OF_HEADER, loginResult.getAccessToken()))
+                        .header(TokenProvider.ACCESS_TOKEN_KEY_NAME, loginResult.getAccessToken()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("wishProduct-findAll-byStore",
@@ -172,7 +170,7 @@ public class WishProductIntegrateTest extends IntegrateTestConfig {
         mockMvc.perform(delete(WishProductControllerPath.WISH_PRODUCT_DELETE)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(wishProductsDeleteRequest))
-                        .header(TokenProvider.ACCESS_TOKEN_KEY_OF_HEADER, loginResult.getAccessToken()))
+                        .header(TokenProvider.ACCESS_TOKEN_KEY_NAME, loginResult.getAccessToken()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(document("wishProduct-delete",

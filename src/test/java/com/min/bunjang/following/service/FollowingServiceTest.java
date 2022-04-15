@@ -1,7 +1,7 @@
 package com.min.bunjang.following.service;
 
 import com.min.bunjang.config.ServiceTestConfig;
-import com.min.bunjang.following.dto.FollowingCreateResponse;
+import com.min.bunjang.following.dto.request.FollowingCreateRequest;
 import com.min.bunjang.following.model.Following;
 import com.min.bunjang.following.repository.FollowingRepository;
 import com.min.bunjang.helpers.MemberAcceptanceHelper;
@@ -9,6 +9,7 @@ import com.min.bunjang.helpers.StoreAcceptanceHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.store.model.Store;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +39,10 @@ class FollowingServiceTest extends ServiceTestConfig {
         Store follower = StoreAcceptanceHelper.상점생성(followerMember, storeRepository);
         Store followed = StoreAcceptanceHelper.상점생성(followedMember, storeRepository);
 
-        FollowingCreateResponse followingCreateResponse = new FollowingCreateResponse(follower.getNum(), followed.getNum());
+        FollowingCreateRequest followingCreateRequest = new FollowingCreateRequest(follower.getNum(), followed.getNum());
 
         //when
-        followingService.createFollowing(followerEmail, followingCreateResponse);
+        followingService.createFollowing(followerEmail, followingCreateRequest);
 
         //then
         List<Following> all = followingRepository.findAll();
@@ -49,5 +50,10 @@ class FollowingServiceTest extends ServiceTestConfig {
         Following following = all.get(0);
         Assertions.assertThat(following.getFollowerStore()).isNotNull();
         Assertions.assertThat(following.getFollowedStore()).isNotNull();
+    }
+
+    @AfterEach
+    void tearDown() {
+        databaseCleanup.execute();
     }
 }
