@@ -1,37 +1,32 @@
 package com.min.bunjang.acceptance.product;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.min.bunjang.acceptance.common.AcceptanceTestConfig;
 import com.min.bunjang.category.model.FirstProductCategory;
 import com.min.bunjang.category.model.SecondProductCategory;
 import com.min.bunjang.category.model.ThirdProductCategory;
-import com.min.bunjang.category.repository.FirstProductCategoryRepository;
-import com.min.bunjang.category.repository.SecondProductCategoryRepository;
-import com.min.bunjang.category.repository.ThirdProductCategoryRepository;
 import com.min.bunjang.common.dto.RestResponse;
 import com.min.bunjang.helpers.MemberAcceptanceHelper;
 import com.min.bunjang.helpers.StoreAcceptanceHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.product.controller.ProductControllerPath;
 import com.min.bunjang.product.controller.ProductViewControllerPath;
-import com.min.bunjang.product.dto.ProductCreateOrUpdateRequest;
-import com.min.bunjang.product.dto.ProductDeleteRequest;
-import com.min.bunjang.product.dto.ProductDetailResponse;
-import com.min.bunjang.product.dto.ProductSimpleResponse;
-import com.min.bunjang.product.dto.ProductSimpleResponses;
-import com.min.bunjang.product.dto.ProductTradeStateUpdateRequest;
+import com.min.bunjang.product.dto.request.ProductCreateOrUpdateRequest;
+import com.min.bunjang.product.dto.request.ProductDeleteRequest;
+import com.min.bunjang.product.dto.response.ProductDetailResponse;
+import com.min.bunjang.product.dto.response.ProductSimpleResponse;
+import com.min.bunjang.product.dto.response.ProductSimpleResponses;
+import com.min.bunjang.product.dto.request.ProductTradeStateUpdateRequest;
 import com.min.bunjang.product.model.DeliveryChargeInPrice;
 import com.min.bunjang.product.model.ExchangeState;
 import com.min.bunjang.product.model.Product;
 import com.min.bunjang.product.model.ProductQualityState;
 import com.min.bunjang.product.model.ProductTag;
 import com.min.bunjang.product.model.ProductTradeState;
-import com.min.bunjang.product.repository.ProductRepository;
 import com.min.bunjang.product.repository.ProductTagRepository;
-import com.min.bunjang.productinquire.controller.ProductInquireViewControllerPath;
 import com.min.bunjang.store.model.Store;
 import com.min.bunjang.token.dto.TokenValuesDto;
-import net.bytebuddy.implementation.bytecode.ShiftRight;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
@@ -111,7 +106,7 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
 
                     //when
                     String path = ProductControllerPath.PRODUCT_UPDATE_TRADE_STATE.replace("{productNum}", String.valueOf(product.getNum()));
-                    patchApi(path, productTradeStateUpdateRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
+                    patchRequest(path, productTradeStateUpdateRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
 
                     //then
                     Product updatedProduct = productRepository.findById(product.getNum()).get();
@@ -160,8 +155,8 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
 
     }
 
-    private RestResponse<Void> 상품_생성_요청(TokenValuesDto loginResult, ProductCreateOrUpdateRequest productCreateOrUpdateRequest) {
-        return postApi(ProductControllerPath.PRODUCT_CREATE, productCreateOrUpdateRequest, new TypeReference<RestResponse<Void>>() {
+    private RestResponse<Void> 상품_생성_요청(TokenValuesDto loginResult, ProductCreateOrUpdateRequest productCreateOrUpdateRequest) throws JsonProcessingException {
+        return postRequest(ProductControllerPath.PRODUCT_CREATE, productCreateOrUpdateRequest, new TypeReference<RestResponse<Void>>() {
         }, loginResult.getAccessToken());
     }
 
@@ -172,7 +167,7 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(product.getSecondProductCategory()).isNotNull();
         Assertions.assertThat(product.getThirdProductCategory()).isNotNull();
         Assertions.assertThat(product.getProductName()).isEqualTo(productCreateOrUpdateRequest.getProductName());
-        Assertions.assertThat(product.getExchangeLocation()).isEqualTo(productCreateOrUpdateRequest.getExchangeLocation());
+        Assertions.assertThat(product.getTradeLocation()).isEqualTo(productCreateOrUpdateRequest.getTradeLocation());
         Assertions.assertThat(product.getProductQualityState()).isEqualTo(productCreateOrUpdateRequest.getProductQualityState());
         Assertions.assertThat(product.getExchangeState()).isEqualTo(productCreateOrUpdateRequest.getExchangeState());
         Assertions.assertThat(product.getDeliveryChargeInPrice()).isEqualTo(productCreateOrUpdateRequest.getDeliveryChargeInPrice());
@@ -185,7 +180,7 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
 
     private ProductDetailResponse 상품단건_조회_요청(TokenValuesDto loginResult, Product product) {
         String path = ProductViewControllerPath.PRODUCT_GET.replace("{productNum}", String.valueOf(product.getNum()));
-        ProductDetailResponse productDetailResponse = getApi(path, loginResult.getAccessToken(), new TypeReference<RestResponse<ProductDetailResponse>>() {
+        ProductDetailResponse productDetailResponse = getRequest(path, loginResult.getAccessToken(), new TypeReference<RestResponse<ProductDetailResponse>>() {
         }).getResult();
         return productDetailResponse;
     }
@@ -203,7 +198,7 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(productDetailResponse.getProductTradeState()).isEqualTo(product.getProductTradeState());
         Assertions.assertThat(productDetailResponse.getProductQualityState()).isEqualTo(product.getProductQualityState());
         Assertions.assertThat(productDetailResponse.getDeliveryChargeInPrice()).isEqualTo(product.getDeliveryChargeInPrice());
-        Assertions.assertThat(productDetailResponse.getExchangeLocation()).isEqualTo(product.getExchangeLocation());
+        Assertions.assertThat(productDetailResponse.getTradeLocation()).isEqualTo(product.getTradeLocation());
         Assertions.assertThat(productDetailResponse.getProductExplanation()).isEqualTo(product.getProductExplanation());
         Assertions.assertThat(productDetailResponse.getProductTags()).hasSize(2);
         Assertions.assertThat(productDetailResponse.getProductTags().get(0)).isEqualTo("tag1");
@@ -215,7 +210,7 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
 
     private ProductSimpleResponses 상점별_상품목록_조회_요청(TokenValuesDto loginResult, Store store) {
         String path = ProductViewControllerPath.PRODUCTS_FIND_BY_STORE.replace("{storeNum}", String.valueOf(store.getNum()));
-        return getApi(path, loginResult.getAccessToken(), new TypeReference<RestResponse<ProductSimpleResponses>>() {
+        return getRequest(path, loginResult.getAccessToken(), new TypeReference<RestResponse<ProductSimpleResponses>>() {
         }).getResult();
     }
 
@@ -225,16 +220,16 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(productSimpleResponseList.get(0).getProductName()).isEqualTo("productName");
     }
 
-    private void 상품_수정_요청(TokenValuesDto loginResult, Product product, ProductCreateOrUpdateRequest productCreateOrUpdateRequest) {
+    private void 상품_수정_요청(TokenValuesDto loginResult, Product product, ProductCreateOrUpdateRequest productCreateOrUpdateRequest) throws JsonProcessingException {
         String path = ProductControllerPath.PRODUCT_UPDATE.replace("{productNum}", String.valueOf(product.getNum()));
-        putApi(path, productCreateOrUpdateRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
+        putRequest(path, productCreateOrUpdateRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
     }
 
     private void 상품_수정_응답_검증(Product product, ProductCreateOrUpdateRequest productCreateOrUpdateRequest) {
         Product updatedProduct = productRepository.findAll().get(0);
         Assertions.assertThat(updatedProduct.getNum()).isEqualTo(product.getNum());
         Assertions.assertThat(updatedProduct.getProductName()).isEqualTo(productCreateOrUpdateRequest.getProductName());
-        Assertions.assertThat(updatedProduct.getExchangeLocation()).isEqualTo(productCreateOrUpdateRequest.getExchangeLocation());
+        Assertions.assertThat(updatedProduct.getTradeLocation()).isEqualTo(productCreateOrUpdateRequest.getTradeLocation());
         Assertions.assertThat(updatedProduct.getProductQualityState()).isEqualTo(productCreateOrUpdateRequest.getProductQualityState());
         Assertions.assertThat(updatedProduct.getExchangeState()).isEqualTo(productCreateOrUpdateRequest.getExchangeState());
         Assertions.assertThat(updatedProduct.getDeliveryChargeInPrice()).isEqualTo(productCreateOrUpdateRequest.getDeliveryChargeInPrice());
@@ -245,8 +240,8 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(productTags.get(1).getTag()).isEqualTo(productCreateOrUpdateRequest.getTags().get(1));
     }
 
-    private void 상품_삭제_요청(TokenValuesDto loginResult, ProductDeleteRequest productDeleteRequest) {
-        deleteApi(ProductControllerPath.PRODUCT_DELETE, productDeleteRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
+    private void 상품_삭제_요청(TokenValuesDto loginResult, ProductDeleteRequest productDeleteRequest) throws JsonProcessingException {
+        deleteRequest(ProductControllerPath.PRODUCT_DELETE, productDeleteRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
     }
 
     private void 상품_삭제_응답_검증() {

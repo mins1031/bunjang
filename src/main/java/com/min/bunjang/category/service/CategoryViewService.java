@@ -1,12 +1,12 @@
 package com.min.bunjang.category.service;
 
-import com.min.bunjang.category.dto.AllCategoryListResponse;
-import com.min.bunjang.category.dto.FirstProductCategoryResponse;
+import com.min.bunjang.category.dto.response.AllCategoryListResponse;
+import com.min.bunjang.category.dto.response.FirstProductCategoryResponse;
 import com.min.bunjang.category.model.FirstProductCategory;
 import com.min.bunjang.category.repository.FirstProductCategoryRepository;
 import com.min.bunjang.common.dto.PageDto;
-import com.min.bunjang.product.dto.ProductSimpleResponse;
-import com.min.bunjang.product.dto.ProductSimpleResponses;
+import com.min.bunjang.product.dto.response.ProductSimpleResponse;
+import com.min.bunjang.product.dto.response.ProductSimpleResponses;
 import com.min.bunjang.product.model.Product;
 import com.min.bunjang.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,7 @@ public class CategoryViewService {
         return new AllCategoryListResponse(FirstProductCategoryResponse.listOf(allCategories));
     }
 
+    @Transactional(readOnly = true)
     public ProductSimpleResponses findProductsByFirstCategory(Long firstCategoryNum, Pageable pageable) {
         Page<Product> firstProductCategories = productRepository.findByFirstProductCategoryNum(firstCategoryNum, pageable);
         List<ProductSimpleResponse> productSimpleResponseList = ProductSimpleResponse.listOf(firstProductCategories.getContent());
@@ -38,6 +39,7 @@ public class CategoryViewService {
         );
     }
 
+    @Transactional(readOnly = true)
     public ProductSimpleResponses findProductsBySecondCategory(Long secondCategoryNum, Pageable pageable) {
         Page<Product> secondProductCategories = productRepository.findBySecondProductCategoryNum(secondCategoryNum, pageable);
         List<ProductSimpleResponse> productSimpleResponseList = ProductSimpleResponse.listOf(secondProductCategories.getContent());
@@ -47,6 +49,7 @@ public class CategoryViewService {
         );
     }
 
+    @Transactional(readOnly = true)
     public ProductSimpleResponses findProductsByThirdCategory(Long thirdCategoryNum, Pageable pageable) {
         Page<Product> thirdProductCategories = productRepository.findByThirdProductCategoryNum(thirdCategoryNum, pageable);
         List<ProductSimpleResponse> productSimpleResponseList = ProductSimpleResponse.listOf(thirdProductCategories.getContent());

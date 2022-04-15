@@ -3,13 +3,13 @@ package com.min.bunjang.integrate;
 import com.min.bunjang.helpers.MemberAcceptanceHelper;
 import com.min.bunjang.helpers.StoreAcceptanceHelper;
 import com.min.bunjang.integrate.config.IntegrateTestConfig;
-import com.min.bunjang.login.jwt.TokenProvider;
+import com.min.bunjang.token.jwt.TokenProvider;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.store.model.Store;
 import com.min.bunjang.store.repository.StoreRepository;
 import com.min.bunjang.storeinquire.controller.StoreInquireControllerPath;
 import com.min.bunjang.storeinquire.controller.StoreInquireViewControllerPath;
-import com.min.bunjang.storeinquire.dto.InquireCreateRequest;
+import com.min.bunjang.storeinquire.dto.request.InquireCreateRequest;
 import com.min.bunjang.storeinquire.model.StoreInquire;
 import com.min.bunjang.storeinquire.repository.StoreInquireRepository;
 import com.min.bunjang.token.dto.TokenValuesDto;
@@ -61,10 +61,11 @@ public class StoreInquireIntegrateTest extends IntegrateTestConfig {
         Store visitor = StoreAcceptanceHelper.상점생성(visitorMember, storeRepository);
 
         InquireCreateRequest inquireCreateRequest = new InquireCreateRequest(owner.getNum(), visitor.getNum(), "상점문의", null);
+
         //when & then
         mockMvc.perform(post(StoreInquireControllerPath.CREATE_INQUIRY)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .header(TokenProvider.ACCESS_TOKEN_KEY_OF_HEADER, loginResult.getAccessToken())
+                        .header(TokenProvider.ACCESS_TOKEN_KEY_NAME, loginResult.getAccessToken())
                         .content(objectMapper.writeValueAsString(inquireCreateRequest)))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -152,7 +153,7 @@ public class StoreInquireIntegrateTest extends IntegrateTestConfig {
         //when & then
         mockMvc.perform(RestDocumentationRequestBuilders.delete(StoreInquireControllerPath.DELETE_INQUIRY, savedStoreInquiry.getNum())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .header(TokenProvider.ACCESS_TOKEN_KEY_OF_HEADER, loginResult.getAccessToken()))
+                        .header(TokenProvider.ACCESS_TOKEN_KEY_NAME, loginResult.getAccessToken()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("storeInquiry-delete",

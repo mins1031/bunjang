@@ -11,9 +11,9 @@ import com.min.bunjang.category.repository.ThirdProductCategoryRepository;
 import com.min.bunjang.common.dto.RestResponse;
 import com.min.bunjang.following.controller.FollowingControllerPath;
 import com.min.bunjang.following.controller.FollowingViewControllerPath;
-import com.min.bunjang.following.dto.FollowingCreateResponse;
-import com.min.bunjang.following.dto.FollowingListResponse;
-import com.min.bunjang.following.dto.FollowingResponse;
+import com.min.bunjang.following.dto.request.FollowingCreateRequest;
+import com.min.bunjang.following.dto.response.FollowingListResponse;
+import com.min.bunjang.following.dto.response.FollowingResponse;
 import com.min.bunjang.following.model.Following;
 import com.min.bunjang.following.repository.FollowingRepository;
 import com.min.bunjang.helpers.MemberAcceptanceHelper;
@@ -67,10 +67,10 @@ public class FollowingAcceptanceTest extends AcceptanceTestConfig {
         return Stream.of(
                 DynamicTest.dynamicTest("팔로잉 생성.", () -> {
                     //given
-                    FollowingCreateResponse followingCreateResponse = new FollowingCreateResponse(follower.getNum(), followed.getNum());
+                    FollowingCreateRequest followingCreateRequest = new FollowingCreateRequest(follower.getNum(), followed.getNum());
 
                     //when
-                    postApi(FollowingControllerPath.FOLLOWING_CREATE, followingCreateResponse, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
+                    postRequest(FollowingControllerPath.FOLLOWING_CREATE, followingCreateRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
 
                     //then
                     List<Following> followings = followingRepository.findAll();
@@ -84,7 +84,7 @@ public class FollowingAcceptanceTest extends AcceptanceTestConfig {
 
                     //when
                     String path = FollowingViewControllerPath.FOLLOWINGS_FIND_BY_STORE.replace("{storeNum}", String.valueOf(follower.getNum()));
-                    List<FollowingResponse> followingResponseList = getApi(path, loginResult.getAccessToken(), new TypeReference<RestResponse<FollowingListResponse>>() {
+                    List<FollowingResponse> followingResponseList = getRequest(path, loginResult.getAccessToken(), new TypeReference<RestResponse<FollowingListResponse>>() {
                     }).getResult().getFollowingResponseList();
 
                     //then
@@ -98,7 +98,7 @@ public class FollowingAcceptanceTest extends AcceptanceTestConfig {
 
                     //when
                     String path = FollowingViewControllerPath.FOLLOWERS_FIND_BY_STORE.replace("{storeNum}", String.valueOf(followed.getNum()));
-                    List<FollowingResponse> followingResponseList = getApi(path, loginResult.getAccessToken(), new TypeReference<RestResponse<FollowingListResponse>>() {
+                    List<FollowingResponse> followingResponseList = getRequest(path, loginResult.getAccessToken(), new TypeReference<RestResponse<FollowingListResponse>>() {
                     }).getResult().getFollowingResponseList();
 
                     //then
@@ -112,7 +112,7 @@ public class FollowingAcceptanceTest extends AcceptanceTestConfig {
 
                     //when
                     String path = FollowingControllerPath.FOLLOWING_DELETE.replace("{storeNum}", String.valueOf(follower.getNum())).replace("{followingNum}", String.valueOf(following.getNum()));
-                    deleteApi(path, null, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
+                    deleteRequest(path, null, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
 
                     //then
                     Optional<Following> deletedFollowing = followingRepository.findById(following.getNum());

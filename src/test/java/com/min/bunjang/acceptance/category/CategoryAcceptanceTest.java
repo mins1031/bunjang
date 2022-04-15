@@ -3,7 +3,7 @@ package com.min.bunjang.acceptance.category;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.min.bunjang.acceptance.common.AcceptanceTestConfig;
 import com.min.bunjang.category.controller.CategoryViewControllerPath;
-import com.min.bunjang.category.dto.AllCategoryListResponse;
+import com.min.bunjang.category.dto.response.AllCategoryListResponse;
 import com.min.bunjang.category.model.FirstProductCategory;
 import com.min.bunjang.category.model.SecondProductCategory;
 import com.min.bunjang.category.model.ThirdProductCategory;
@@ -15,12 +15,13 @@ import com.min.bunjang.helpers.MemberAcceptanceHelper;
 import com.min.bunjang.helpers.ProductHelper;
 import com.min.bunjang.helpers.StoreAcceptanceHelper;
 import com.min.bunjang.member.model.Member;
-import com.min.bunjang.product.dto.ProductSimpleResponse;
-import com.min.bunjang.product.dto.ProductSimpleResponses;
+import com.min.bunjang.product.dto.response.ProductSimpleResponse;
+import com.min.bunjang.product.dto.response.ProductSimpleResponses;
 import com.min.bunjang.product.model.Product;
 import com.min.bunjang.product.repository.ProductRepository;
 import com.min.bunjang.store.model.Store;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +107,7 @@ public class CategoryAcceptanceTest extends AcceptanceTestConfig {
     }
 
     private AllCategoryListResponse 모든카테고리_조회_요청(String categoryFindAll) {
-        return getApi(categoryFindAll, "", new TypeReference<RestResponse<AllCategoryListResponse>>() {
+        return getRequest(categoryFindAll, "", new TypeReference<RestResponse<AllCategoryListResponse>>() {
         }).getResult();
     }
 
@@ -140,7 +141,7 @@ public class CategoryAcceptanceTest extends AcceptanceTestConfig {
 
     private ProductSimpleResponses 루트_카테고리_상품_조회_요청(FirstProductCategory firstCategory) {
         String path = CategoryViewControllerPath.CATEGORY_FIND_BY_FIRST.replace("{firstCategoryNum}", String.valueOf(firstCategory.getNum()));
-        ProductSimpleResponses productSimpleResponses = getApi(path, "", new TypeReference<RestResponse<ProductSimpleResponses>>() {
+        ProductSimpleResponses productSimpleResponses = getRequest(path, "", new TypeReference<RestResponse<ProductSimpleResponses>>() {
         }).getResult();
         return productSimpleResponses;
     }
@@ -155,7 +156,7 @@ public class CategoryAcceptanceTest extends AcceptanceTestConfig {
 
     private ProductSimpleResponses Second_카테고리_상품_조회_요청(SecondProductCategory secondCategory3) {
         String path = CategoryViewControllerPath.CATEGORY_FIND_BY_SECOND.replace("{secondCategoryNum}", String.valueOf(secondCategory3.getNum()));
-        return getApi(path, "", new TypeReference<RestResponse<ProductSimpleResponses>>() {
+        return getRequest(path, "", new TypeReference<RestResponse<ProductSimpleResponses>>() {
         }).getResult();
     }
 
@@ -168,7 +169,7 @@ public class CategoryAcceptanceTest extends AcceptanceTestConfig {
 
     private ProductSimpleResponses Third_카테고리_상품_조회_요청(ThirdProductCategory thirdCategory) {
         String path = CategoryViewControllerPath.CATEGORY_FIND_BY_THIRD.replace("{thirdCategoryNum}", String.valueOf(thirdCategory.getNum()));
-        return getApi(path, "", new TypeReference<RestResponse<ProductSimpleResponses>>() {
+        return getRequest(path, "", new TypeReference<RestResponse<ProductSimpleResponses>>() {
         }).getResult();
     }
 
@@ -178,5 +179,10 @@ public class CategoryAcceptanceTest extends AcceptanceTestConfig {
         Assertions.assertThat(productSimpleResponseList.get(0).getProductNum()).isEqualTo(product4.getNum());
         Assertions.assertThat(productSimpleResponseList.get(1).getProductNum()).isEqualTo(product2.getNum());
         Assertions.assertThat(productSimpleResponseList.get(2).getProductNum()).isEqualTo(product1.getNum());
+    }
+
+    @AfterEach
+    void tearDown() {
+        databaseCleanup.execute();
     }
 }
