@@ -1,13 +1,11 @@
 package com.min.bunjang.storereview.service;
 
 import com.min.bunjang.common.exception.ImpossibleException;
-import com.min.bunjang.common.validator.MemberAndStoreValidator;
-import com.min.bunjang.member.exception.NotExistMemberException;
-import com.min.bunjang.member.model.Member;
-import com.min.bunjang.member.repository.MemberRepository;
+import com.min.bunjang.common.validator.RightRequesterChecker;
 import com.min.bunjang.product.exception.NotExistProductException;
 import com.min.bunjang.product.model.Product;
 import com.min.bunjang.product.repository.ProductRepository;
+import com.min.bunjang.security.MemberAccount;
 import com.min.bunjang.store.exception.NotExistStoreException;
 import com.min.bunjang.store.model.Store;
 import com.min.bunjang.store.repository.StoreRepository;
@@ -21,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class StoreReviewService {
@@ -31,11 +27,12 @@ public class StoreReviewService {
     private final StoreRepository storeRepository;
 
     @Transactional
-    public StoreReviewResponse createStoreReview(String requesterEmail, StoreReviewCreateRequest storeReviewCreateRequest) {
+    public StoreReviewResponse createStoreReview(MemberAccount memberAccount, StoreReviewCreateRequest storeReviewCreateRequest) {
         Store owner = storeRepository.findById(storeReviewCreateRequest.getOwnerNum()).orElseThrow(NotExistStoreException::new);
         Store writer = storeRepository.findById(storeReviewCreateRequest.getWriterNum()).orElseThrow(NotExistStoreException::new);
         Product product = productRepository.findById(storeReviewCreateRequest.getProductNum()).orElseThrow(NotExistProductException::new);
-        MemberAndStoreValidator.verifyMemberAndStoreMatchByEmail(requesterEmail, writer);
+        RightRequesterChecker.verifyLoginRequest(memberAccount);
+        RightRequesterChecker.verifyMemberAndStoreMatchByEmail(memberAccount.getEmail(), writer);
         StoreReview storeReview = StoreReview.createStoreReview(
                 owner,
                 writer,
@@ -52,21 +49,23 @@ public class StoreReviewService {
     }
 
     @Transactional
-    public void updateStoreReview(String requesterEmail, StoreReviewUpdateRequest storeReviewUpdateRequest) {
+    public void updateStoreReview(MemberAccount memberAccount, StoreReviewUpdateRequest storeReviewUpdateRequest) {
         StoreReview storeReview = storeReviewRepository.findById(storeReviewUpdateRequest.getReviewNum()).orElseThrow(NotExistStoreReviewException::new);
-        MemberAndStoreValidator.verifyMemberAndStoreMatchByEmail(requesterEmail, storeReview.getWriter());
+        RightRequesterChecker.verifyLoginRequest(memberAccount);
+        RightRequesterChecker.verifyMemberAndStoreMatchByEmail(memberAccount.getEmail(), storeReview.getWriter());
 
         storeReview.updateReviewContent(storeReviewUpdateRequest.getUpdatedReviewContent(), storeReviewUpdateRequest.getUpdatedDealScore());
     }
 
     @Transactional
-    public void deleteStoreReview(String requesterEmail, Long reviewNum) {
+    public void deleteStoreReview(MemberAccount memberAccount, Long reviewNum) {
         if (reviewNum == null) {
             throw new ImpossibleException("삭제요청한 리뷰의 식별자가 null입니다. 잘못된 요청입니다.");
         }
 
         StoreReview storeReview = storeReviewRepository.findById(reviewNum).orElseThrow(NotExistStoreReviewException::new);
-        MemberAndStoreValidator.verifyMemberAndStoreMatchByEmail(requesterEmail, storeReview.getWriter());
+        RightRequesterChecker.verifyLoginRequest(memberAccount);
+        RightRequesterChecker.verifyMemberAndStoreMatchByEmail(memberAccount.getEmail(), storeReview.getWriter());
 
         storeReviewRepository.deleteById(reviewNum);
     }

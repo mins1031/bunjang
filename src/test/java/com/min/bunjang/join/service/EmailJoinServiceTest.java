@@ -1,11 +1,12 @@
 package com.min.bunjang.join.service;
 
-import com.min.bunjang.common.database.DatabaseCleanup;
+import com.min.bunjang.common.database.DatabaseFormat;
 import com.min.bunjang.join.confirmtoken.exception.WrongConfirmEmailToken;
 import com.min.bunjang.join.confirmtoken.model.ConfirmationToken;
 import com.min.bunjang.join.confirmtoken.repository.ConfirmationTokenRepository;
 import com.min.bunjang.join.dto.JoinRequest;
 import com.min.bunjang.join.dto.TempJoinRequest;
+import com.min.bunjang.member.exception.NotExistTempMemberException;
 import com.min.bunjang.member.model.JoinTempMember;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.member.model.MemberGender;
@@ -16,18 +17,15 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 
@@ -50,7 +48,7 @@ class EmailJoinServiceTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    private DatabaseCleanup databaseCleanup;
+    private DatabaseFormat databaseFormat;
 
     @MockBean
     private JavaMailSender javaMailSender;
@@ -150,8 +148,28 @@ class EmailJoinServiceTest {
         Assertions.assertThat(joinedMember.getMemberRole()).isEqualTo(MemberRole.ROLE_MEMBER);
     }
 
+    @DisplayName("[예외] 토큰을 인증할때 임시회원이 저장이 안되어 있는 경우 예외가 발생한다.")
+    @Test
+    void 임시회원_조회불가_예외() {
+        //given
+        String email = "email@email.com";
+        String password = bCryptPasswordEncoder.encode("password");
+        String name = "min";
+        String phone = "phone";
+        LocalDate birthDate = LocalDate.of(2000, 12, 12);
+
+        TempJoinRequest tempJoinRequest = new TempJoinRequest(email, password, name, phone, birthDate);
+        JoinTempMember savedTempMember = joinTempMemberRepository.save(JoinTempMember.createJoinTempMember(tempJoinRequest, bCryptPasswordEncoder));
+        ConfirmationToken savedConfirmationToken = confirmationTokenRepository.save(ConfirmationToken.createEmailConfirmationToken(savedTempMember.getEmail()));
+
+        JoinRequest joinRequest = new JoinRequest("wrongEmail@emil.c", MemberGender.MEN);
+
+        //when & then
+        Assertions.assertThatThrownBy(() -> emailJoinService.joinMember(joinRequest)).isInstanceOf(NotExistTempMemberException.class);
+    }
+
     @AfterEach
     void tearDown() {
-        databaseCleanup.execute();
+        databaseFormat.clean();
     }
 }

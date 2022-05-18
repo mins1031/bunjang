@@ -1,10 +1,10 @@
-package com.min.bunjang.integrate.config;
+package com.min.bunjang.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.min.bunjang.category.repository.FirstProductCategoryRepository;
 import com.min.bunjang.category.repository.SecondProductCategoryRepository;
 import com.min.bunjang.category.repository.ThirdProductCategoryRepository;
-import com.min.bunjang.common.database.DatabaseCleanup;
+import com.min.bunjang.common.database.DatabaseFormat;
 import com.min.bunjang.member.repository.MemberRepository;
 import com.min.bunjang.product.repository.ProductRepository;
 import com.min.bunjang.store.repository.StoreRepository;
@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @Import(RestDocsConfiguration.class)
-public class IntegrateTestConfig {
+public class DocumentBaseTest {
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -62,7 +62,7 @@ public class IntegrateTestConfig {
     int port;
 
     @Autowired
-    protected DatabaseCleanup databaseCleanup;
+    protected DatabaseFormat databaseFormat;
 
     @BeforeEach
     public void setUp() {

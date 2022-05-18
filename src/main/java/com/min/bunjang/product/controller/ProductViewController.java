@@ -1,7 +1,7 @@
 package com.min.bunjang.product.controller;
 
 import com.min.bunjang.common.dto.RestResponse;
-import com.min.bunjang.common.validator.MemberAndStoreValidator;
+import com.min.bunjang.common.validator.RightRequesterChecker;
 import com.min.bunjang.product.dto.response.ProductDetailResponse;
 import com.min.bunjang.product.dto.response.ProductSimpleResponses;
 import com.min.bunjang.product.exception.NotExistProductException;
@@ -33,7 +33,7 @@ public class ProductViewController {
             @NotNull @PathVariable Long productNum,
             @AuthenticationPrincipal MemberAccount memberAccount
     ) {
-        ProductDetailResponse productDetailResponse = productViewService.getProduct(productNum, MemberAndStoreValidator.verifyLoginRequest(memberAccount));
+        ProductDetailResponse productDetailResponse = productViewService.getProduct(productNum, memberAccount);
         return RestResponse.of(HttpStatus.OK, productDetailResponse);
     }
 
@@ -43,10 +43,11 @@ public class ProductViewController {
             @AuthenticationPrincipal MemberAccount memberAccount,
             @PageableDefault(sort = "updatedDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable
     ) {
-        ProductSimpleResponses productSimpleResponses = productViewService.findProductsByStore(MemberAndStoreValidator.verifyLoginRequest(memberAccount), storeNum, pageable);
+        ProductSimpleResponses productSimpleResponses = productViewService.findProductsByStore(memberAccount, storeNum, pageable);
         return RestResponse.of(HttpStatus.OK, productSimpleResponses);
     }
 
+    ////// exception handlers //////
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = NotExistProductException.class)
     public RestResponse<Void> notExistProductExceptionHandler(NotExistProductException e) {

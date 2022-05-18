@@ -1,210 +1,136 @@
 package com.min.bunjang.integrate;
 
-import com.min.bunjang.helpers.MemberAcceptanceHelper;
-import com.min.bunjang.helpers.StoreAcceptanceHelper;
-import com.min.bunjang.integrate.config.IntegrateTestConfig;
-import com.min.bunjang.token.jwt.TokenProvider;
+import com.min.bunjang.category.model.FirstProductCategory;
+import com.min.bunjang.category.model.SecondProductCategory;
+import com.min.bunjang.category.model.ThirdProductCategory;
+import com.min.bunjang.config.IntegrateBaseTest;
+import com.min.bunjang.helpers.MemberHelper;
+import com.min.bunjang.helpers.StoreHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.store.controller.StoreControllerPath;
+import com.min.bunjang.store.controller.StoreViewControllerPath;
 import com.min.bunjang.store.dto.request.StoreCreateOrUpdateRequest;
 import com.min.bunjang.store.dto.request.StoreIntroduceUpdateRequest;
 import com.min.bunjang.store.dto.request.StoreNameUpdateRequest;
-import com.min.bunjang.store.dto.request.VisitorPlusDto;
 import com.min.bunjang.store.model.Store;
-import com.min.bunjang.store.repository.StoreRepository;
 import com.min.bunjang.token.dto.TokenValuesDto;
+import com.min.bunjang.token.jwt.TokenProvider;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import java.util.List;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class StoreIntegrateTest extends IntegrateTestConfig {
-    @Autowired
-    private StoreRepository storeRepository;
+public class StoreIntegrateTest extends IntegrateBaseTest {
 
-    @DisplayName("상점 생성 통합테스트")
+    @DisplayName("상점생성 통합테스트")
     @Test
-    void store_create() throws Exception {
+    public void 상점_생성() throws Exception {
         //given
-        String email = "email";
+        String email = "urisegea@naver.com";
         String password = "password";
-        Member member = MemberAcceptanceHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
-        TokenValuesDto loginResult = MemberAcceptanceHelper.로그인(email, password).getResult();
+        Member member = MemberHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
+        TokenValuesDto loginResult = MemberHelper.로그인(email, password, loginService);
+
+        FirstProductCategory firstCategory = firstProductCategoryRepository.save(FirstProductCategory.createFirstProductCategory("firstCate"));
+        SecondProductCategory secondCategory = secondProductCategoryRepository.save(SecondProductCategory.createSecondCategory("secondCate", firstCategory));
+        ThirdProductCategory thirdCategory = thirdProductCategoryRepository.save(ThirdProductCategory.createThirdCategory("thirdCate", secondCategory));
 
         String storeName = "storeName";
         String introduceContent = "introduceContent";
-
         StoreCreateOrUpdateRequest storeCreateOrUpdateRequest = new StoreCreateOrUpdateRequest(storeName, introduceContent, null, null, null, null);
 
+        //when
+        postRequest(StoreControllerPath.STORE_CREATE, loginResult.getAccessToken(), storeCreateOrUpdateRequest);
+
+        //then
+        List<Store> stores = storeRepository.findAll();
+        Assertions.assertThat(stores).hasSize(1);
+    }
+
+    @DisplayName("상점 단건 조회 통합테스트")
+    @Test
+    public void 상점_단건_조회() throws Exception {
+        //given
+        String email = "urisegea@naver.com";
+        String password = "password";
+        Member member = MemberHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
+        TokenValuesDto loginResult = MemberHelper.로그인(email, password, loginService);
+
+        FirstProductCategory firstCategory = firstProductCategoryRepository.save(FirstProductCategory.createFirstProductCategory("firstCate"));
+        SecondProductCategory secondCategory = secondProductCategoryRepository.save(SecondProductCategory.createSecondCategory("secondCate", firstCategory));
+        ThirdProductCategory thirdCategory = thirdProductCategoryRepository.save(ThirdProductCategory.createThirdCategory("thirdCate", secondCategory));
+
+        Store store = StoreHelper.상점생성(member, storeRepository);
+
         //when & then
-        mockMvc.perform(post(StoreControllerPath.STORE_CREATE)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .header(TokenProvider.ACCESS_TOKEN_KEY_NAME, loginResult.getAccessToken())
-                        .content(objectMapper.writeValueAsString(storeCreateOrUpdateRequest)))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andDo(document("store-create",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("요청 데이터의 타입필드, 요청 객체는 JSON 형태로 요청")
-                        ),
-                        requestFields(
-                                fieldWithPath("storeName").description("상점명 필드"),
-                                fieldWithPath("introduceContent").description("상점 소개글 필드"),
-                                fieldWithPath("storeThumbnail").description("상점 섬네일 필드"),
-                                fieldWithPath("contactableTime").description("상점 응답시간 필드"),
-                                fieldWithPath("exchangeAndReturnAndRefundPolicy").description("상점 교환/환불/반품 주의사항 정보 필드"),
-                                fieldWithPath("cautionNoteBeforeTrade").description("상점 구매전 주의사항 정보 필드")
-                        ),
-                        responseHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("응답 데이터의 타입필드, 응답 객체는 JSON 형태로 응답")
-                        ),
-                        responseFields(
-                                fieldWithPath("statusCode").description("요청의 성공 여부입니다. 201이면 성공, 500번 대는 실패."),
-                                fieldWithPath("message").description("예외 발생시 메세지 정보 필드."),
-                                fieldWithPath("result.storeId").description("생성된 상점의 식별자 정보 필드"),
-                                fieldWithPath("result.storeName").description("생성된 상점의 이름 정보 필드"),
-                                fieldWithPath("result.introduceContent").description("생성된 상점의 소개글 정보 필드")
-                        )
-                ));
+        String path = StoreViewControllerPath.STORE_FIND.replace("{storeNum}", String.valueOf(store.getNum()));
+        ResultActions resultActions = getRequest(loginResult.getAccessToken(), path);
+        resultActions.andExpect(jsonPath("result.storeNum").value(store.getNum()));
     }
 
     @DisplayName("상점 소개글 변경 통합테스트")
     @Test
-    void store_introduceContent_update() throws Exception {
+    public void 상점_소개글_변경() throws Exception {
         //given
-        String email = "email1";
+        String email = "urisegea@naver.com";
         String password = "password";
-        Member member = MemberAcceptanceHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
-        TokenValuesDto loginResult = MemberAcceptanceHelper.로그인(email, password).getResult();
+        Member member = MemberHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
+        TokenValuesDto loginResult = MemberHelper.로그인(email, password, loginService);
 
-        Store store = StoreAcceptanceHelper.상점생성(member, storeRepository);
-        String updateIntroduceContent = "updateIntroduceContent";
+        FirstProductCategory firstCategory = firstProductCategoryRepository.save(FirstProductCategory.createFirstProductCategory("firstCate"));
+        SecondProductCategory secondCategory = secondProductCategoryRepository.save(SecondProductCategory.createSecondCategory("secondCate", firstCategory));
+        ThirdProductCategory thirdCategory = thirdProductCategoryRepository.save(ThirdProductCategory.createThirdCategory("thirdCate", secondCategory));
 
-        StoreIntroduceUpdateRequest storeIntroduceUpdateRequest = new StoreIntroduceUpdateRequest(updateIntroduceContent);
+        Store store = StoreHelper.상점생성(member, storeRepository);
 
-        //when & then
-        mockMvc.perform(put(StoreControllerPath.STORE_INTRODUCE_CONTENT_UPDATE)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .header(TokenProvider.ACCESS_TOKEN_KEY_NAME, loginResult.getAccessToken())
-                        .content(objectMapper.writeValueAsString(storeIntroduceUpdateRequest)))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andDo(document("store-introduceContent-update",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("요청 데이터의 타입필드, 요청 객체는 JSON 형태로 요청")
-                        ),
-                        requestFields(
-                                fieldWithPath("updateIntroduceContent").description("변경될 소개글 정보 필드")
-                        ),
-                        responseHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("응답 데이터의 타입필드, 응답 객체는 JSON 형태로 응답")
-                        ),
-                        responseFields(
-                                fieldWithPath("statusCode").description("요청의 성공 여부입니다. 201이면 성공, 500번 대는 실패."),
-                                fieldWithPath("message").description("예외 발생시 메세지 정보 필드."),
-                                fieldWithPath("result").description("응답의 데이터 필드")
-                        )
-                ));
+        String introduceContent = "updateIntroduceContent";
+        StoreIntroduceUpdateRequest storeIntroduceUpdateRequest = new StoreIntroduceUpdateRequest(introduceContent);
+
+        //when
+        patchRequest(StoreControllerPath.STORE_INTRODUCE_CONTENT_UPDATE, loginResult.getAccessToken(), storeIntroduceUpdateRequest);
+
+        //then
+        List<Store> stores = storeRepository.findAll();
+        Assertions.assertThat(stores.get(0).getIntroduceContent()).isEqualTo(storeIntroduceUpdateRequest.getUpdateIntroduceContent());
     }
 
     @DisplayName("상점이름 변경 통합테스트")
     @Test
-    void store_name_update() throws Exception {
+    public void 상점이름_변경() throws Exception {
         //given
-        String email = "email";
+        String email = "urisegea@naver.com";
         String password = "password";
-        Member member = MemberAcceptanceHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
-        TokenValuesDto loginResult = MemberAcceptanceHelper.로그인(email, password).getResult();
+        Member member = MemberHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
+        TokenValuesDto loginResult = MemberHelper.로그인(email, password, loginService);
 
-        Store store = StoreAcceptanceHelper.상점생성(member, storeRepository);
-        String updateStoreName = "updateStoreName";
+        FirstProductCategory firstCategory = firstProductCategoryRepository.save(FirstProductCategory.createFirstProductCategory("firstCate"));
+        SecondProductCategory secondCategory = secondProductCategoryRepository.save(SecondProductCategory.createSecondCategory("secondCate", firstCategory));
+        ThirdProductCategory thirdCategory = thirdProductCategoryRepository.save(ThirdProductCategory.createThirdCategory("thirdCate", secondCategory));
 
-        StoreNameUpdateRequest storeNameUpdateRequest = new StoreNameUpdateRequest(updateStoreName);
+        Store store = StoreHelper.상점생성(member, storeRepository);
 
-        //when & then
-        mockMvc.perform(put(StoreControllerPath.STORE_NAME_UPDATE)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .header(TokenProvider.ACCESS_TOKEN_KEY_NAME, loginResult.getAccessToken())
-                        .content(objectMapper.writeValueAsString(storeNameUpdateRequest)))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andDo(document("store-name-update",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("요청 데이터의 타입필드, 요청 객체는 JSON 형태로 요청")
-                        ),
-                        requestFields(
-                                fieldWithPath("updatedStoreName").description("변경될 상점이름 정보 필드")
-                        ),
-                        responseHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("응답 데이터의 타입필드, 응답 객체는 JSON 형태로 응답")
-                        ),
-                        responseFields(
-                                fieldWithPath("statusCode").description("요청의 성공 여부입니다. 201이면 성공, 500번 대는 실패."),
-                                fieldWithPath("message").description("예외 발생시 메세지 정보 필드."),
-                                fieldWithPath("result").description("응답의 데이터 필드")
-                        )
-                ));
-    }
+        String updateName = "updateName";
+        StoreNameUpdateRequest storeNameUpdateRequest = new StoreNameUpdateRequest(updateName);
 
-    @DisplayName("상점 방문자 카운트 통합테스트")
-    @Test
-    void store_plusVisitor() throws Exception {
-        //given
-        String ownerEmail = "urisegea@naver.com";
-        String ownerPassword = "password";
-        Member ownerMember = MemberAcceptanceHelper.회원가입(ownerEmail, ownerPassword, memberRepository, bCryptPasswordEncoder);
+        //when
+        patchRequest(StoreControllerPath.STORE_NAME_UPDATE, loginResult.getAccessToken(), storeNameUpdateRequest);
 
-        String visitorEmail = "visitor@naver.com";
-        String visitorPassword = "password!visitor";
-        Member visitorMember = MemberAcceptanceHelper.회원가입(visitorEmail, visitorPassword, memberRepository, bCryptPasswordEncoder);
-        TokenValuesDto loginResult = MemberAcceptanceHelper.로그인(visitorEmail, visitorPassword).getResult();
-
-        Store owner = StoreAcceptanceHelper.상점생성(ownerMember, storeRepository);
-        Store visitor = StoreAcceptanceHelper.상점생성(visitorMember, storeRepository);
-
-        VisitorPlusDto visitorPlusDto = new VisitorPlusDto(owner.getNum());
-
-        //when & then
-        mockMvc.perform(post(StoreControllerPath.STORE_PLUS_VISITOR)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .header(TokenProvider.ACCESS_TOKEN_KEY_NAME, loginResult.getAccessToken())
-                        .content(objectMapper.writeValueAsString(visitorPlusDto)))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andDo(document("store-plusVisitor",
-                        requestHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("요청 데이터의 타입필드, 요청 객체는 JSON 형태로 요청")
-                        ),
-                        requestFields(
-                                fieldWithPath("ownerNum").description("소개글이 변경될 상점의 식별자 정보 필드")
-                        ),
-                        responseHeaders(
-                                headerWithName(HttpHeaders.CONTENT_TYPE).description("응답 데이터의 타입필드, 응답 객체는 JSON 형태로 응답")
-                        ),
-                        responseFields(
-                                fieldWithPath("statusCode").description("요청의 성공 여부입니다. 201이면 성공, 500번 대는 실패."),
-                                fieldWithPath("message").description("예외 발생시 메세지 정보 필드."),
-                                fieldWithPath("result").description("응답의 데이터 필드")
-                        )
-                ));
+        //then
+        List<Store> stores = storeRepository.findAll();
+        Assertions.assertThat(stores.get(0).getStoreName()).isEqualTo(storeNameUpdateRequest.getUpdatedStoreName());
     }
 
     @AfterEach
     void tearDown() {
-        databaseCleanup.execute();
+        databaseFormat.clean();
     }
 }

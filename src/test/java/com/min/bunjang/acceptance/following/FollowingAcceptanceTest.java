@@ -1,5 +1,6 @@
 package com.min.bunjang.acceptance.following;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.min.bunjang.acceptance.common.AcceptanceTestConfig;
 import com.min.bunjang.category.model.FirstProductCategory;
@@ -16,8 +17,8 @@ import com.min.bunjang.following.dto.response.FollowingListResponse;
 import com.min.bunjang.following.dto.response.FollowingResponse;
 import com.min.bunjang.following.model.Following;
 import com.min.bunjang.following.repository.FollowingRepository;
-import com.min.bunjang.helpers.MemberAcceptanceHelper;
-import com.min.bunjang.helpers.StoreAcceptanceHelper;
+import com.min.bunjang.helpers.MemberHelper;
+import com.min.bunjang.helpers.StoreHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.store.model.Store;
 import com.min.bunjang.token.dto.TokenValuesDto;
@@ -46,18 +47,18 @@ public class FollowingAcceptanceTest extends AcceptanceTestConfig {
     private FollowingRepository followingRepository;
 
     @TestFactory
-    Stream<DynamicTest> dynamicTestStream() {
+    Stream<DynamicTest> dynamicTestStream() throws JsonProcessingException {
         String followerEmail = "urisegea@naver.com";
         String followerPassword = "password";
-        Member followerMember = MemberAcceptanceHelper.회원가입(followerEmail, followerPassword, memberRepository, bCryptPasswordEncoder);
-        TokenValuesDto loginResult = MemberAcceptanceHelper.로그인(followerEmail, followerPassword).getResult();
+        Member followerMember = MemberHelper.회원가입(followerEmail, followerPassword, memberRepository, bCryptPasswordEncoder);
+        TokenValuesDto loginResult = MemberHelper.인수테스트_로그인(followerEmail, followerPassword).getResult();
 
         String followedEmail = "writer@naver.com";
         String followedPassword = "password!writer";
-        Member followedMember = MemberAcceptanceHelper.회원가입(followedEmail, followedPassword, memberRepository, bCryptPasswordEncoder);
+        Member followedMember = MemberHelper.회원가입(followedEmail, followedPassword, memberRepository, bCryptPasswordEncoder);
 
-        Store follower = StoreAcceptanceHelper.상점생성(followerMember, storeRepository);
-        Store followed = StoreAcceptanceHelper.상점생성(followedMember, storeRepository);
+        Store follower = StoreHelper.상점생성(followerMember, storeRepository);
+        Store followed = StoreHelper.상점생성(followedMember, storeRepository);
 
         FirstProductCategory firstCategory = firstProductCategoryRepository.save(FirstProductCategory.createFirstProductCategory("firstCate"));
         SecondProductCategory secondCategory = secondProductCategoryRepository.save(SecondProductCategory.createSecondCategory("secondCate", firstCategory));
@@ -124,6 +125,6 @@ public class FollowingAcceptanceTest extends AcceptanceTestConfig {
 
     @AfterEach
     void tearDown() {
-        databaseCleanup.execute();
+        databaseFormat.clean();
     }
 }

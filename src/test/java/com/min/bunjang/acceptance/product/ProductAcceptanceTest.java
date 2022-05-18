@@ -7,8 +7,8 @@ import com.min.bunjang.category.model.FirstProductCategory;
 import com.min.bunjang.category.model.SecondProductCategory;
 import com.min.bunjang.category.model.ThirdProductCategory;
 import com.min.bunjang.common.dto.RestResponse;
-import com.min.bunjang.helpers.MemberAcceptanceHelper;
-import com.min.bunjang.helpers.StoreAcceptanceHelper;
+import com.min.bunjang.helpers.MemberHelper;
+import com.min.bunjang.helpers.StoreHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.product.controller.ProductControllerPath;
 import com.min.bunjang.product.controller.ProductViewControllerPath;
@@ -28,6 +28,7 @@ import com.min.bunjang.product.repository.ProductTagRepository;
 import com.min.bunjang.store.model.Store;
 import com.min.bunjang.token.dto.TokenValuesDto;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +42,12 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
     private ProductTagRepository productTagRepository;
 
     @TestFactory
-    Stream<DynamicTest> dynamicTestStream() {
+    Stream<DynamicTest> dynamicTestStream() throws JsonProcessingException {
         String email = "urisegea@naver.com";
         String password = "password";
-        Member member = MemberAcceptanceHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
-        TokenValuesDto loginResult = MemberAcceptanceHelper.로그인(email, password).getResult();
-        Store store = StoreAcceptanceHelper.상점생성(member, storeRepository);
+        Member member = MemberHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
+        TokenValuesDto loginResult = MemberHelper.인수테스트_로그인(email, password).getResult();
+        Store store = StoreHelper.상점생성(member, storeRepository);
 
         FirstProductCategory firstCategory = firstProductCategoryRepository.save(FirstProductCategory.createFirstProductCategory("firstCate"));
         SecondProductCategory secondCategory = secondProductCategoryRepository.save(SecondProductCategory.createSecondCategory("secondCate", firstCategory));
@@ -247,5 +248,10 @@ public class ProductAcceptanceTest extends AcceptanceTestConfig {
     private void 상품_삭제_응답_검증() {
         List<Product> products = productRepository.findAll();
         Assertions.assertThat(products).isEmpty();
+    }
+
+    @AfterEach
+    void tearDown() {
+        databaseFormat.clean();
     }
 }

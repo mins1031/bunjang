@@ -1,6 +1,6 @@
 package com.min.bunjang.store.service;
 
-import com.min.bunjang.common.database.DatabaseCleanup;
+import com.min.bunjang.common.database.DatabaseFormat;
 import com.min.bunjang.member.dto.MemberDirectCreateDto;
 import com.min.bunjang.member.exception.NotExistMemberException;
 import com.min.bunjang.member.model.Member;
@@ -35,7 +35,7 @@ class StoreServiceTest {
     private StoreRepository storeRepository;
 
     @Autowired
-    private DatabaseCleanup databaseCleanup;
+    private DatabaseFormat databaseFormat;
 
     @Autowired
     private StoreService storeService;
@@ -156,6 +156,7 @@ class StoreServiceTest {
         Store visitor = storeRepository.save(Store.createStore(storeName2, introduceContent2, null, newMember));
 
         VisitorPlusDto visitorPlusDto = new VisitorPlusDto(owner.getNum());
+
         //when
         storeService.plusVisitor(visitorPlusDto, newMember.getEmail());
         storeService.plusVisitor(visitorPlusDto, newMember.getEmail());
@@ -166,6 +167,6 @@ class StoreServiceTest {
 
     @AfterEach
     void tearDown() {
-        databaseCleanup.execute();
+        databaseFormat.clean();
     }
 }

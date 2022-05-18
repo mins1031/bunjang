@@ -11,9 +11,9 @@ import com.min.bunjang.category.repository.FirstProductCategoryRepository;
 import com.min.bunjang.category.repository.SecondProductCategoryRepository;
 import com.min.bunjang.category.repository.ThirdProductCategoryRepository;
 import com.min.bunjang.common.dto.RestResponse;
-import com.min.bunjang.helpers.MemberAcceptanceHelper;
+import com.min.bunjang.helpers.MemberHelper;
 import com.min.bunjang.helpers.ProductHelper;
-import com.min.bunjang.helpers.StoreAcceptanceHelper;
+import com.min.bunjang.helpers.StoreHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.product.dto.response.ProductSimpleResponse;
 import com.min.bunjang.product.dto.response.ProductSimpleResponses;
@@ -46,10 +46,10 @@ public class CategoryAcceptanceTest extends AcceptanceTestConfig {
     Stream<DynamicTest> dynamicTestStream() throws InterruptedException {
         String email = "urisegea@naver.com";
         String password = "password";
-        Member member = MemberAcceptanceHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
-        Member member2 = MemberAcceptanceHelper.회원가입("temp@emial", password, memberRepository, bCryptPasswordEncoder);
-        Store store = StoreAcceptanceHelper.상점생성(member, storeRepository);
-        Store store2 = StoreAcceptanceHelper.상점생성(member2, storeRepository);
+        Member member = MemberHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
+        Member member2 = MemberHelper.회원가입("temp@emial", password, memberRepository, bCryptPasswordEncoder);
+        Store store = StoreHelper.상점생성(member, storeRepository);
+        Store store2 = StoreHelper.상점생성(member2, storeRepository);
 
         FirstProductCategory firstCategory = firstProductCategoryRepository.save(FirstProductCategory.createFirstProductCategory("firstCate"));
         FirstProductCategory firstCategory2 = firstProductCategoryRepository.save(FirstProductCategory.createFirstProductCategory("firstCate2"));
@@ -183,6 +183,6 @@ public class CategoryAcceptanceTest extends AcceptanceTestConfig {
 
     @AfterEach
     void tearDown() {
-        databaseCleanup.execute();
+        databaseFormat.clean();
     }
 }

@@ -1,12 +1,12 @@
 package com.min.bunjang.common.validator;
 
 import com.min.bunjang.common.exception.ImpossibleException;
-import com.min.bunjang.common.exception.WrongWriterException;
+import com.min.bunjang.common.exception.WrongRequesterException;
 import com.min.bunjang.security.MemberAccount;
 import com.min.bunjang.store.model.Store;
 import com.min.bunjang.storeinquire.model.StoreInquire;
 
-public class MemberAndStoreValidator {
+public class RightRequesterChecker {
 
     public static void verifyMemberAndStoreMatchByEmail(String email, Store store) {
         if (email == null) {
@@ -24,15 +24,15 @@ public class MemberAndStoreValidator {
         }
 
         if (!storeInquire.getWriter().verifyMatchMember(email)) {
-            throw new WrongWriterException("작성자가 아닌 사용자가 삭제를 요청했습니다. 잘못된 접근입니다.");
+            throw new WrongRequesterException("작성자가 아닌 사용자가 삭제를 요청했습니다. 잘못된 접근입니다.");
         }
     }
 
-    public static String verifyLoginRequest(MemberAccount memberAccount) {
+    public static void verifyLoginRequest(MemberAccount memberAccount) {
         if (memberAccount == null) {
-            return null;
+            throw new WrongRequesterException("요청자가 없습니다. 잘못된 요청입니다.");
         }
-
-        return memberAccount.getEmail();
     }
+
+
 }

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.min.bunjang.acceptance.common.AcceptanceTestConfig;
 import com.min.bunjang.common.dto.RestResponse;
-import com.min.bunjang.helpers.MemberAcceptanceHelper;
-import com.min.bunjang.helpers.StoreAcceptanceHelper;
+import com.min.bunjang.helpers.MemberHelper;
+import com.min.bunjang.helpers.StoreHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.store.model.Store;
 import com.min.bunjang.store.repository.StoreRepository;
@@ -37,18 +37,18 @@ public class StoreInquireAcceptanceTest extends AcceptanceTestConfig {
     private StoreInquireRepository storeInquiryRepository;
 
     @TestFactory
-    Stream<DynamicTest> dynamicTestStream() {
+    Stream<DynamicTest> dynamicTestStream() throws JsonProcessingException {
         String ownerEmail = "urisegea@naver.com";
         String ownerPassword = "password";
-        Member ownerMember = MemberAcceptanceHelper.회원가입(ownerEmail, ownerPassword, memberRepository, bCryptPasswordEncoder);
+        Member ownerMember = MemberHelper.회원가입(ownerEmail, ownerPassword, memberRepository, bCryptPasswordEncoder);
 
         String writerEmail = "writer@naver.com";
         String writerPassword = "password!writer";
-        Member writerMember = MemberAcceptanceHelper.회원가입(writerEmail, writerPassword, memberRepository, bCryptPasswordEncoder);
-        TokenValuesDto loginResult = MemberAcceptanceHelper.로그인(writerEmail, writerPassword).getResult();
+        Member writerMember = MemberHelper.회원가입(writerEmail, writerPassword, memberRepository, bCryptPasswordEncoder);
+        TokenValuesDto loginResult = MemberHelper.인수테스트_로그인(writerEmail, writerPassword).getResult();
 
-        Store owner = StoreAcceptanceHelper.상점생성(ownerMember, storeRepository);
-        Store writer = StoreAcceptanceHelper.상점생성(writerMember, storeRepository);
+        Store owner = StoreHelper.상점생성(ownerMember, storeRepository);
+        Store writer = StoreHelper.상점생성(writerMember, storeRepository);
 
         return Stream.of(
                 DynamicTest.dynamicTest("상점문의 생성.", () -> {
@@ -127,6 +127,6 @@ public class StoreInquireAcceptanceTest extends AcceptanceTestConfig {
 
     @AfterEach
     void tearDown() {
-        databaseCleanup.execute();
+        databaseFormat.clean();
     }
 }

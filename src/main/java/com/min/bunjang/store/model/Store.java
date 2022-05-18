@@ -107,6 +107,10 @@ public class Store extends BasicEntity {
     }
 
     public Period calculateOpenTime() {
+        if (this.createdDate == null) {
+            return null;
+        }
+
         LocalDate now = LocalDate.now();
         return Period.between(createdDate.toLocalDate(), now);
     }
@@ -120,7 +124,7 @@ public class Store extends BasicEntity {
         for (StoreReview storeReview : this.storeReviews) {
             average += storeReview.getDealScore();
         }
-
+//TODO 방법별론거 같다. 평가할때 한번에 점수 적용하고 조회할땐 가지고 있는 점수를 반환하는게 좋은듯. 일단 점수 필드만들것.
         return average / this.storeReviews.size();
     }
 
@@ -161,5 +165,24 @@ public class Store extends BasicEntity {
     @Override
     public int hashCode() {
         return Objects.hash(storeName, introduceContent, member, storeThumbnail, visitors, Products, wishProducts, storeReviews, followings, followers, hits, contactableTime, exchangeAndReturnAndRefundPolicy, cautionNoteBeforeTrade);
+    }
+
+    @Override
+    public String toString() {
+        return "Store{" +
+                "storeName='" + storeName + '\'' +
+                ", introduceContent='" + introduceContent + '\'' +
+                ", storeThumbnail=" + storeThumbnail +
+                ", visitors=" + visitors +
+                ", Products=" + Products +
+                ", wishProducts=" + wishProducts +
+                ", storeReviews=" + storeReviews +
+                ", followings=" + followings +
+                ", followers=" + followers +
+                ", hits=" + hits +
+                ", contactableTime='" + contactableTime + '\'' +
+                ", exchangeAndReturnAndRefundPolicy='" + exchangeAndReturnAndRefundPolicy + '\'' +
+                ", cautionNoteBeforeTrade='" + cautionNoteBeforeTrade + '\'' +
+                '}';
     }
 }

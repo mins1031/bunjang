@@ -10,7 +10,7 @@ import com.min.bunjang.category.repository.FirstProductCategoryRepository;
 import com.min.bunjang.category.repository.SecondProductCategoryRepository;
 import com.min.bunjang.category.repository.ThirdProductCategoryRepository;
 import com.min.bunjang.common.dto.RestResponse;
-import com.min.bunjang.helpers.MemberAcceptanceHelper;
+import com.min.bunjang.helpers.MemberHelper;
 import com.min.bunjang.helpers.ProductHelper;
 import com.min.bunjang.member.model.Member;
 import com.min.bunjang.product.model.Product;
@@ -47,11 +47,11 @@ public class StoreAcceptanceTest extends AcceptanceTestConfig {
     private ThirdProductCategoryRepository thirdProductCategoryRepository;
 
     @TestFactory
-    Stream<DynamicTest> dynamicTestStream() {
+    Stream<DynamicTest> dynamicTestStream() throws JsonProcessingException {
         String email = "urisegea@naver.com";
         String password = "password";
-        Member member = MemberAcceptanceHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
-        TokenValuesDto loginResult = MemberAcceptanceHelper.로그인(email, password).getResult();
+        Member member = MemberHelper.회원가입(email, password, memberRepository, bCryptPasswordEncoder);
+        TokenValuesDto loginResult = MemberHelper.인수테스트_로그인(email, password).getResult();
 
         FirstProductCategory firstCategory = firstProductCategoryRepository.save(FirstProductCategory.createFirstProductCategory("firstCate"));
         SecondProductCategory secondCategory = secondProductCategoryRepository.save(SecondProductCategory.createSecondCategory("secondCate", firstCategory));
@@ -141,7 +141,7 @@ public class StoreAcceptanceTest extends AcceptanceTestConfig {
     }
 
     private RestResponse<Void> 상점소개글_변경_요청(TokenValuesDto loginResult, StoreIntroduceUpdateRequest storeIntroduceUpdateRequest) throws JsonProcessingException {
-        return putRequest(StoreControllerPath.STORE_INTRODUCE_CONTENT_UPDATE, storeIntroduceUpdateRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
+        return patchRequest(StoreControllerPath.STORE_INTRODUCE_CONTENT_UPDATE, storeIntroduceUpdateRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
     }
 
     private void 상점소개글_변경_요청_검증(Store store, String introduceContent) {
@@ -150,7 +150,7 @@ public class StoreAcceptanceTest extends AcceptanceTestConfig {
     }
 
     private void 상점이름_변경_요청(TokenValuesDto loginResult, StoreNameUpdateRequest storeNameUpdateRequest) throws JsonProcessingException {
-        putRequest(StoreControllerPath.STORE_NAME_UPDATE, storeNameUpdateRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
+        patchRequest(StoreControllerPath.STORE_NAME_UPDATE, storeNameUpdateRequest, new TypeReference<RestResponse<Void>>() {}, loginResult.getAccessToken());
     }
 
     private void 상점이름_변경_요청_검증(Store store, String updateStoreName) {
@@ -160,6 +160,6 @@ public class StoreAcceptanceTest extends AcceptanceTestConfig {
 
     @AfterEach
     void tearDown() {
-        databaseCleanup.execute();
+        databaseFormat.clean();
     }
 }
